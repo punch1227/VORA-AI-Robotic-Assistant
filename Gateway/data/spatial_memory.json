@@ -1,0 +1,136 @@
+{
+  "next_id": 9,
+  "observations": [
+    {
+      "id": 1,
+      "timestamp": 1776864193.8549306,
+      "x": 0.382,
+      "y": 0.309,
+      "theta": 0.0154,
+      "heading_deg": 0.9,
+      "description": "The image is mostly a light gray background. On the left side, there's a vertical white line or edge, and along that left edge, there are small rectangular indentations or perforations—like a paper's edge with holes. Let's break it down.\n\nFirst, identify objects. The main thing is the left edge with those small rectangular features. Let's describe each part.\n\n- The large background: it's a light gray area, covering most of the image. But wait, the image is very plain. Wait, the left side has a v",
+      "objects_mentioned": [
+        "light",
+        "paper"
+      ],
+      "phase": "phase0_current",
+      "search_target": "ปากกาบนเตียง"
+    },
+    {
+      "id": 2,
+      "timestamp": 1776864219.3703856,
+      "x": 0.05,
+      "y": 0.102,
+      "theta": 0.4381,
+      "heading_deg": 25.1,
+      "description": "First, the main elements. The background is a white wall with a sign. The sign has \"KMUTNB\" in red and black, then a logo with \"65\" in blue and orange, and text \"Reinventing Reinventthink Towards Sustainability\". The wall is white. Below the sign, there's a white baseboard. The floor is green. \n\nNow, objects: \n\n1. The sign on the wall: it's a rectangular white sign with text and logo. Position: center-right of the wall. Color: white background, text in various colors (red, black, blue, orange). ",
+      "objects_mentioned": [
+        "wall",
+        "floor",
+        "sign",
+        "logo"
+      ],
+      "phase": "sweep_entrance_A1",
+      "search_target": "ปากกาบนเตียง"
+    },
+    {
+      "id": 3,
+      "timestamp": 1776864228.775856,
+      "x": 0.048,
+      "y": 0.096,
+      "theta": -0.2655,
+      "heading_deg": 344.8,
+      "description": "First, the main elements. There's a large white structure, maybe a wall or panel, taking up most of the left and center. Then on the right, there's a vertical white strip with some texture, like ridges. At the bottom, there's a green surface, maybe a floor. \n\nNow, small objects: near the bottom center, there's a small white object on the green floor. Also, the white vertical strip has a base that's a white circular piece. Let's list each:\n\n1. Large white panel (left/center): color white, shape r",
+      "objects_mentioned": [
+        "wall",
+        "panel",
+        "floor"
+      ],
+      "phase": "sweep_entrance_A2",
+      "search_target": "ปากกาบนเตียง"
+    },
+    {
+      "id": 4,
+      "timestamp": 1776864237.8325808,
+      "x": 0.05,
+      "y": 0.09,
+      "theta": -0.9597,
+      "heading_deg": 305.0,
+      "description": "First, the main elements. There are white panels, probably temporary barriers or walls. They're large, white, rectangular. The panels are connected, forming a structure. On one panel, there's red text \"ENC\" — that's a logo, so it's a label on the panel. The floor is green, smooth, like a hard surface. \n\nNow, check for small objects. The panels have white bases or supports at the bottom, maybe white plastic or metal feet. Those are small, near the bottom of the panels. The panels themselves are b",
+      "objects_mentioned": [
+        "floor",
+        "panel",
+        "logo"
+      ],
+      "phase": "sweep_entrance_B3",
+      "search_target": "ปากกาบนเตียง"
+    },
+    {
+      "id": 5,
+      "timestamp": 1776864246.986572,
+      "x": 0.048,
+      "y": 0.062,
+      "theta": -1.5318,
+      "heading_deg": 272.2,
+      "description": "First, the main elements. The floor is green with a dark stripe running from bottom left to top right. The walls: there are white panels, some with black connectors. On the left, there's a white cube-like structure near the wall. On the right, another white structure, maybe a corner. The background has wooden panels.\n\nNow, list all objects:\n\n1. Floor: green, large area, with a dark stripe (maybe black or dark gray) running diagonally from left to right. The stripe is in the center area, going fr",
+      "objects_mentioned": [
+        "panel",
+        "wall",
+        "floor",
+        "light"
+      ],
+      "phase": "sweep_entrance_B4",
+      "search_target": "ปากกาบนเตียง"
+    },
+    {
+      "id": 6,
+      "timestamp": 1776864256.0907595,
+      "x": 0.042,
+      "y": 0.056,
+      "theta": -2.3029,
+      "heading_deg": 228.1,
+      "description": "First, the main objects. There are two large white panels or boards. They're side by side, left and right. The left one is a bit wider? Wait, no, they're both tall, white, rectangular. The floor is green. Now, small objects: on the bottom of the left panel, there's a white base or support, maybe a bracket. On the right panel, similar. Also, there's a white base on the right panel, maybe a corner piece. Wait, the image shows two white panels standing on a green floor. Let's list each object.\n\nFir",
+      "objects_mentioned": [
+        "panel",
+        "wall",
+        "floor"
+      ],
+      "phase": "sweep_entrance_B5",
+      "search_target": "ปากกาบนเตียง"
+    },
+    {
+      "id": 7,
+      "timestamp": 1776864265.3739517,
+      "x": 0.041,
+      "y": 0.051,
+      "theta": -3.0023,
+      "heading_deg": 188.0,
+      "description": "carefully. First, the main elements. The floor is green with some markings. There's a yellow curved line on the right side, maybe a boundary. Then there are white panels or barriers. Let's list each object:\n\n1. White barrier panels: There are several white panels. One on the left (left side), then a central panel with \"66\" on it (center-left), then more white panels to the right. The panels are rectangular, white, and they're standing vertically. The one with \"66\" is in the center-left area.\n\n2.",
+      "objects_mentioned": [
+        "panel",
+        "tape",
+        "floor",
+        "box"
+      ],
+      "phase": "sweep_entrance_B6",
+      "search_target": "ปากกาบนเตียง"
+    },
+    {
+      "id": 8,
+      "timestamp": 1776864289.8077648,
+      "x": 0.02,
+      "y": -0.892,
+      "theta": -2.543,
+      "heading_deg": 214.3,
+      "description": "First, the main objects. There's a large white structure, maybe a table or a platform, covered with a white cloth. The cloth is taped down with beige tape on the sides. On top of this white structure, there's a blue object and a white object. The blue one is a pen? Wait, the problem says the robot is searching for a pen, but we have to describe what's visible. Let's check each part.\n\nFirst, the large white structure: it's a rectangular platform, covered with white fabric. The fabric is taped wit",
+      "objects_mentioned": [
+        "table",
+        "tape",
+        "floor",
+        "pen"
+      ],
+      "phase": "sweep_bedroom_A1",
+      "search_target": "ปากกาบนเตียง"
+    }
+  ]
+}

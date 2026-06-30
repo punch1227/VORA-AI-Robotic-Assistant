@@ -1,0 +1,309 @@
+# ══════════════════════════════════════════════════════════
+# Nav2 Parameters — VORA MyAGV (Elephant Robotics MyAGV 2023)
+# ══════════════════════════════════════════════════════════
+# Robot: 21cm × 26cm Mecanum, YDLidar G2, Jetson Nano 4GB
+# Map:   ~/Desktop/VORA_myAGV_only_ros2_package/new5/maps/new5_map5.yaml
+# ══════════════════════════════════════════════════════════
+
+amcl:
+  ros__parameters:
+    use_sim_time: false
+    alpha1: 0.1          # rotation noise from rotation    (omni: lower than diff)
+    alpha2: 0.1          # rotation noise from translation
+    alpha3: 0.1          # translation noise from translation
+    alpha4: 0.1          # translation noise from rotation
+    alpha5: 0.1          # translation noise (omnidirectional — used by omni model)
+    base_frame_id: "base_footprint"
+    beam_skip_distance: 0.5
+    beam_skip_error_threshold: 0.9
+    beam_skip_threshold: 0.3
+    do_beams_skip: false
+    global_frame_id: "map"
+    lambda_short: 0.1
+    laser_likelihood_max_dist: 2.0
+    laser_max_range: 12.0       # YDLidar G2 max
+    laser_min_range: 0.1        # YDLidar G2 min
+    laser_model_type: "likelihood_field"
+    max_beams: 30               # was 60 — halves likelihood-field ops; sufficient for indoor lab
+    max_particles: 500          # was 2000 — prevents AMCL SIGSEGV from resource exhaustion on Jetson Nano
+    min_particles: 200          # was 500 — allow filter to shrink when well-localized
+    odom_frame_id: "odom"
+    pf_err: 0.05
+    pf_z: 0.99
+    recovery_alpha_fast: 0.1
+    recovery_alpha_slow: 0.001
+    resample_interval: 2            # resample every 2 filter updates — more stable
+    robot_model_type: "differential"  # omni model has SIGSEGV bug with atan2(0,0) after relocalize+rotation on Galactic; scan matching compensates for strafe prediction gap
+    save_pose_rate: 0.5             # save current pose so restart resumes correctly
+    sigma_hit: 0.2
+    tf_broadcast: true
+    transform_tolerance: 1.0     # 1s is plenty; 2.0 masked real TF lag bugs
+    update_min_a: 0.1           # radians (~6°) — was 0.2; lower for faster localization recovery
+    update_min_d: 0.05          # meters — was 0.15; update every 5cm to track motion closely
+    z_hit: 0.7              # was 0.5 — more weight on real laser hits
+    z_max: 0.05
+    z_rand: 0.3             # was 0.5 — less random noise → sharper localization
+    z_short: 0.05
+    scan_topic: /scan
+    set_initial_pose: false
+    # initial_pose disabled — use /initialpose topic to set pose manually.
+    # set_initial_pose: true hardcodes startup pose and OVERRIDES any /initialpose
+    # published before AMCL fully activates, causing the "pose jumps back" bug.
+
+bt_navigator:
+  ros__parameters:
+    use_sim_time: false
+    global_frame: map
+    robot_base_frame: base_footprint
+    odom_topic: /odom_fused   # /odom has x=y=0 always (MyAGV hw bug) — use dead-reckoning fused topic
+    bt_loop_duration: 10
+    default_server_timeout: 30  # was 20 — Jetson Nano needs more time to spin up action servers
+    # This build uses dual navigator plugins (NavigateToPose + NavigateThroughPoses)
+    # default_bt_xml_filename is IGNORED — must use these two params instead:
+    default_nav_to_pose_bt_xml: /home/er/Desktop/VORA_myAGV_only_ros2_package/new5/bt_nav_to_pose_no_backup.xml
+    default_nav_through_poses_bt_xml: /home/er/Desktop/VORA_myAGV_only_ros2_package/new5/bt_nav_through_poses_no_backup.xml
+    plugin_lib_names:
+      - nav2_compute_path_to_pose_action_bt_node
+      - nav2_compute_path_through_poses_action_bt_node
+      - nav2_follow_path_action_bt_node
+      # nav2_back_up_action_bt_node intentionally omitted: BackUp action server removed from
+      # recoveries_server (wall-collision risk on MyAGV). Its BT node constructor calls
+      # waitForActionServer() indefinitely → deadlocks bt_navigator on_activate().
+      - nav2_spin_action_bt_node
+      - nav2_wait_action_bt_node
+      - nav2_clear_costmap_service_bt_node
+      - nav2_is_stuck_condition_bt_node
+      - nav2_goal_reached_condition_bt_node
+      - nav2_initial_pose_received_condition_bt_node
+      - nav2_goal_updated_condition_bt_node
+      - nav2_rate_controller_bt_node
+      - nav2_distance_controller_bt_node
+      - nav2_recovery_node_bt_node
+      - nav2_remove_passed_goals_action_bt_node
+      - nav2_pipeline_sequence_bt_node
+      - nav2_round_robin_node_bt_node
+
+controller_server:
+  ros__parameters:
+    use_sim_time: false
+    controller_frequency: 10.0       # 10Hz — safe for Jetson Nano
+    min_x_velocity_threshold: 0.001
+    min_y_velocity_threshold: 0.001  # Mecanum can strafe
+    min_theta_velocity_threshold: 0.001
+    progress_checker_plugin: "progress_checker"
+    goal_checker_plugin: "goal_checker"
+    controller_plugins: ["FollowPath"]
+
+    progress_checker:
+      plugin: "nav2_controller::SimpleProgressChecker"
+      required_movement_radius: 0.15  # 15cm — robot body is 21cm, 30cm was too aggressive near walls
+      movement_time_allowance: 30.0   # 30s — DWB replanning gaps on Jetson Nano can exceed 20s
+
+    goal_checker:
+      plugin: "nav2_controller::SimpleGoalChecker"
+      xy_goal_tolerance: 0.25         # 25cm — tightened from 35cm; still avoids thrashing but closer arrival
+      yaw_goal_tolerance: 0.52        # ~30° — relaxed to avoid spin-oscillation at goal
+      stateful: true
+
+    FollowPath:
+      plugin: "dwb_core::DWBLocalPlanner"
+      debug_trajectory_details: false
+      min_vel_x: 0.0                 # no reverse — prevents sliding backward into walls
+      max_vel_x: 0.15                # slow and safe (15 cm/s)
+      min_vel_y: 0.0                 # no strafe — AMCL uses differential model; y-vel causes particle divergence
+      max_vel_y: 0.0
+      max_vel_theta: 0.5             # rad/s — reduced from 0.8 for smoother rotation
+      min_speed_xy: 0.0
+      max_speed_xy: 0.15
+      min_speed_theta: 0.05          # was 0.1 — lower threshold gives DWB more theta candidates near tight spots
+      acc_lim_x: 0.5
+      acc_lim_y: 0.5
+      acc_lim_theta: 0.5            # rad/s^2 — reduced from 1.0 for smoother acceleration
+      decel_lim_x: -0.5
+      decel_lim_y: -0.5
+      decel_lim_theta: -1.0
+      vx_samples: 6                  # was 10 — 6×3×12=216 traj (was 1000), 78% less CPU
+      vy_samples: 1                  # strafe disabled (max_vel_y=0); 1 sample = vy=0 only
+      vtheta_samples: 16             # was 12 — 6×1×16=96 traj total (vy_samples=1); finer angular resolution for tight corridor escapes
+      sim_time: 0.8                  # was 1.2s — shorter lookahead reduces footprint sweep in tight corridors; 12cm fwd (vs 18cm) keeps more trajectories valid
+      linear_granularity: 0.05
+      angular_granularity: 0.025
+      transform_tolerance: 0.5
+      xy_goal_tolerance: 0.25         # match goal_checker — prevents DWB rejecting valid goals
+      trans_stopped_velocity: 0.05   # was 0.15 (= max_vel_x!) — RotateToGoal fired instantly
+      short_circuit_trajectory_evaluation: true
+      stateful: true
+      critics:
+        - RotateToGoal
+        # Oscillation removed: when robot oscillates theta (head-shaking), this critic
+        # restricts ALL rotation trajectories → only forward-only candidates remain →
+        # all forward paths hit walls in tight spaces → "No valid trajectories out of 77".
+        # The oscillation is better prevented by reducing RotateToGoal.scale instead.
+        - ObstacleFootprint
+        - GoalAlign
+        - PathAlign
+        - PathDist
+        - GoalDist
+      ObstacleFootprint.scale: 0.5    # was 0.02 — too low, robot planned through obstacles
+      ObstacleFootprint.sum_scores: false
+      PathAlign.scale: 24.0           # was 32.0 — equal weight with RotateToGoal caused oscillation mid-path
+      PathAlign.forward_point_distance: 0.2  # was 0.1 — look 20cm ahead for smoother alignment
+      GoalAlign.scale: 12.0           # was 24.0 — reduce conflicting pull vs PathAlign
+      GoalAlign.forward_point_distance: 0.2  # was 0.1 — match PathAlign lookahead
+      PathDist.scale: 32.0
+      GoalDist.scale: 24.0
+      RotateToGoal.scale: 12.0        # was 32.0 — equal weight to PathDist caused heading-lock oscillation
+      RotateToGoal.slowing_factor: 5.0  # was 3.0 — smoother final rotation deceleration
+      RotateToGoal.lookahead_time: -1.0
+
+local_costmap:
+  local_costmap:
+    ros__parameters:
+      footprint_clearing_enabled: true
+      use_sim_time: false
+      update_frequency: 5.0          # 5Hz — Jetson-friendly
+      publish_frequency: 2.0
+      global_frame: odom
+      robot_base_frame: base_footprint
+      rolling_window: true
+      width: 3                       # 3m × 3m local window
+      height: 3
+      resolution: 0.05               # 5cm — match SLAM map
+      # TF tolerance at costmap node level — covers robot pose lookup
+      # (separate from observation source tolerance below)
+      transform_tolerance: 0.5       # accept TF up to 0.5s off from query time
+      # After object approach, robot may be inside the inflation zone of nearby furniture.
+      # footprint_clearing_enabled clears the robot's own footprint polygon cells each
+      # update cycle, preventing DWB from treating the robot itself as inside an obstacle.
+      # Robot footprint (polygon — tightened to actual 21×20cm body)
+      footprint: "[ [0.13, 0.10], [0.13, -0.10], [-0.13, -0.10], [-0.13, 0.10] ]"
+      plugins: ["obstacle_layer", "inflation_layer"]
+      obstacle_layer:
+        plugin: "nav2_costmap_2d::ObstacleLayer"
+        enabled: true
+        observation_sources: scan
+        scan:
+          topic: /scan
+          max_obstacle_height: 2.0
+          clearing: true
+          marking: true
+          data_type: "LaserScan"
+          raytrace_max_range: 5.0
+          raytrace_min_range: 0.1
+          obstacle_max_range: 4.0
+          obstacle_min_range: 0.1
+          # Key fix: "timestamp earlier than all TF cache data" startup race.
+          # Nav2 costmap TF buffer starts empty when the node is created.
+          # First laser scans arrive before laser_frame/odom TFs fill the buffer.
+          # 0.5s tolerance lets the message filter accept the nearest available TF
+          # instead of dropping scans whose timestamps predate the buffer start.
+          transform_tolerance: 0.5
+          # QoS fix: ydlidar_ros2_driver publishes /scan with BEST_EFFORT reliability.
+          # Nav2 costmap defaults to RELIABLE → "incompatible QoS" warning → costmap
+          # receives NO data → lifecycle_manager_navigation never reaches "active".
+          # Force BEST_EFFORT here to match the publisher.
+          qos_overrides:
+            reliability: best_effort
+            durability: volatile
+      inflation_layer:
+        plugin: "nav2_costmap_2d::InflationLayer"
+        cost_scaling_factor: 5.0      # steeper falloff — cost drops faster from obstacles
+        inflation_radius: 0.15        # 15cm — was 30cm which blocked doorways/corridors
+
+global_costmap:
+  global_costmap:
+    ros__parameters:
+      use_sim_time: false
+      update_frequency: 1.0          # 1Hz — global map updates slowly
+      publish_frequency: 0.5
+      global_frame: map
+      robot_base_frame: base_footprint
+      robot_radius: 0.14             # circumscribed radius of 21×20cm body (tightened)
+      resolution: 0.05
+      track_unknown_space: true
+      transform_tolerance: 0.5       # same race-condition fix as local_costmap
+      # Global costmap intentionally uses ONLY static_layer + inflation_layer — no obstacle_layer.
+      # Reason: after object-approach (robot within 15cm of furniture), the obstacle_layer
+      # accumulates LiDAR marks around the robot's new position. NavFn then finds the start
+      # cell or the goal's 1.0m search radius completely blocked → "failed to create plan
+      # with tolerance 1.00". ClearEntireCostmap recovery runs but the 1Hz costmap update
+      # re-marks before NavFn retries, making the failure persistent.
+      # Fix: NavFn plans on the static map (permanent walls only). Dynamic obstacle avoidance
+      # is handled by the local costmap + DWB controller. This is the standard pattern for
+      # pre-mapped indoor navigation in Nav2.
+      plugins: ["static_layer", "inflation_layer"]
+      static_layer:
+        plugin: "nav2_costmap_2d::StaticLayer"
+        map_subscribe_transient_local: true
+      inflation_layer:
+        plugin: "nav2_costmap_2d::InflationLayer"
+        cost_scaling_factor: 5.0      # steeper falloff — match local costmap
+        inflation_radius: 0.15        # 15cm — was 30cm, planner can now plan through doorways
+
+map_server:
+  ros__parameters:
+    use_sim_time: false
+    yaml_filename: ""                 # set via launch argument
+
+planner_server:
+  ros__parameters:
+    use_sim_time: false
+    expected_planner_frequency: 5.0   # 5Hz — Jetson-friendly
+    planner_plugins: ["GridBased"]
+    GridBased:
+      plugin: "nav2_navfn_planner/NavfnPlanner"
+      tolerance: 1.0                  # relaxed to 1.0m — bathroom goal cell is blocked even within 50cm; 1.0m search radius finds nearest reachable cell
+      use_astar: true                 # A* is faster than Dijkstra
+      allow_unknown: true             # allow planning through unknown space
+
+recoveries_server:
+  ros__parameters:
+    use_sim_time: false
+    costmap_topic: local_costmap/costmap_raw
+    footprint_topic: local_costmap/published_footprint
+    cycle_frequency: 10.0
+    recovery_plugins: ["spin", "wait"]
+    spin:
+      plugin: "nav2_recoveries/Spin"
+    # backup removed — BackUp drives blindly backward, causes wall collisions on MyAGV
+    wait:
+      plugin: "nav2_recoveries/Wait"
+
+waypoint_follower:
+  ros__parameters:
+    use_sim_time: false
+    loop_rate: 20
+    stop_on_failure: false
+    waypoint_task_executor_plugin: "wait_at_waypoint"
+    wait_at_waypoint:
+      plugin: "nav2_waypoint_follower::WaitAtWaypoint"
+      enabled: true
+      waypoint_pause_duration: 0
+
+lifecycle_manager_navigation:
+  ros__parameters:
+    use_sim_time: false
+    autostart: true
+    node_names:
+      - controller_server
+      - planner_server
+      - recoveries_server
+      - bt_navigator
+      - waypoint_follower
+    bond_timeout: 30.0             # was 10.0 — Jetson Nano DDS discovery is slow; 10s caused false drops
+    attempt_respawn_reconnection: true
+    bond_respawn_max_duration: 30.0  # was 10.0
+    # IMPORTANT: node name must match navigation_launch.py which launches this node as
+    # "lifecycle_manager_navigation". If this section is named "lifecycle_manager" instead,
+    # the params are not applied and the node uses defaults (bond_timeout=4.0),
+    # which expires before Jetson Nano DDS discovery → double startup() → lifecycle conflict.
+
+# For localization-only mode (AMCL + map_server)
+lifecycle_manager_localization:
+  ros__parameters:
+    use_sim_time: false
+    autostart: true
+    node_names:
+      - map_server
+      - amcl
+    bond_timeout: 30.0  # was 10.0 — match navigation lifecycle_manager

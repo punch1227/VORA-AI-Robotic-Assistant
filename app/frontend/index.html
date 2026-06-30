@@ -1,0 +1,4162 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta name="theme-color" content="#07070f"/>
+<title>VORA — Voice Oriented Robotics Assistant</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Noto+Sans+Thai:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+/* ═══════════════════════════════════════════════════════════════
+   DESIGN TOKENS
+═══════════════════════════════════════════════════════════════ */
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  /* ── Color Palette ── */
+  --bg:#07070f;
+  --bg2:#0e0e1b;
+  --bg3:#151524;
+  --bg4:#1c1c2e;
+  --surface:#121220;
+  --surface2:#181830;
+  --surface3:#202040;
+
+  /* ── Text ── */
+  --text:#eaeaf2;
+  --text2:#9898b0;
+  --text3:#5c5c78;
+  --text4:#3a3a52;
+
+  /* ── Brand ── */
+  --accent:#7c5cff;
+  --accent2:#a78bfa;
+  --accent3:#c4b5fd;
+  --accent-glow:rgba(124,92,255,.28);
+  --accent-subtle:rgba(124,92,255,.08);
+
+  /* ── Semantic ── */
+  --green:#10b981;
+  --green-glow:rgba(16,185,129,.35);
+  --green-subtle:rgba(16,185,129,.09);
+  --red:#ef4444;
+  --red-glow:rgba(239,68,68,.35);
+  --red-subtle:rgba(239,68,68,.09);
+  --amber:#f59e0b;
+  --amber-subtle:rgba(245,158,11,.09);
+  --blue:#3b82f6;
+  --blue-subtle:rgba(59,130,246,.09);
+
+  /* ── Borders ── */
+  --border:rgba(255,255,255,.05);
+  --border2:rgba(255,255,255,.1);
+  --border3:rgba(255,255,255,.18);
+
+  /* ── Geometry ── */
+  --r-sm:8px;
+  --r:12px;
+  --r-md:16px;
+  --r-lg:20px;
+  --r-xl:24px;
+  --r-pill:999px;
+
+  /* ── Typography ── */
+  --font:'Inter','Noto Sans Thai',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;
+  --mono:'JetBrains Mono','SF Mono','Fira Code',monospace;
+  --text-2xs:10px;
+  --text-xs:11px;
+  --text-sm:12px;
+  --text-base:13px;
+  --text-md:14px;
+  --text-lg:15px;
+  --text-xl:16px;
+  --text-2xl:18px;
+  --text-3xl:22px;
+
+  /* ── Spacing (8px grid) ── */
+  --sp-1:4px;
+  --sp-2:8px;
+  --sp-3:12px;
+  --sp-4:16px;
+  --sp-5:20px;
+  --sp-6:24px;
+  --sp-8:32px;
+
+  /* ── Shadows ── */
+  --shadow-sm:0 2px 8px rgba(0,0,0,.35);
+  --shadow:0 4px 20px rgba(0,0,0,.45);
+  --shadow-lg:0 8px 40px rgba(0,0,0,.55);
+  --shadow-accent:0 4px 24px var(--accent-glow);
+
+  /* ── Motion ── */
+  --ease:cubic-bezier(.4,0,.2,1);
+  --ease-spring:cubic-bezier(.34,1.56,.64,1);
+  --t-fast:.15s;
+  --t:.25s;
+  --t-slow:.4s;
+  --transition:all var(--t) var(--ease);
+
+  /* ── Glass ── */
+  --glass:rgba(14,14,27,.72);
+  --glass-border:rgba(255,255,255,.07);
+  --glass-blur:blur(24px) saturate(1.6);
+
+  /* Legacy aliases (keep JS working) */
+  --radius:var(--r-md);
+  --radius2:var(--r-xl);
+  --radius3:var(--r-pill);
+}
+
+/* ── Base ── */
+html,body{height:100%;overflow:hidden}
+body{
+  font-family:var(--font);
+  background:var(--bg);
+  color:var(--text);
+  display:flex;
+  flex-direction:column;
+  -webkit-font-smoothing:antialiased;
+  font-size:var(--text-base);
+  line-height:1.5;
+}
+
+/* ── Ambient background ── */
+body::before{
+  content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(ellipse 700px 500px at 12% 20%, rgba(124,92,255,.07) 0%, transparent 70%),
+    radial-gradient(ellipse 600px 600px at 88% 78%, rgba(59,130,246,.06) 0%, transparent 70%),
+    radial-gradient(ellipse 500px 400px at 50% 48%, rgba(167,139,250,.04) 0%, transparent 70%);
+  animation:nebulaShift 14s ease-in-out infinite alternate;
+}
+body::after{
+  content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(ellipse 400px 400px at 72% 12%, rgba(16,185,129,.05) 0%, transparent 70%),
+    radial-gradient(ellipse 600px 500px at 28% 84%, rgba(124,92,255,.05) 0%, transparent 70%);
+  animation:nebulaShift2 18s ease-in-out infinite alternate;
+}
+@keyframes nebulaShift{
+  0%{opacity:.6;transform:translateX(0) scale(1)}
+  100%{opacity:1;transform:translateX(24px) translateY(-16px) scale(1.07)}
+}
+@keyframes nebulaShift2{
+  0%{opacity:.4}
+  100%{opacity:.8;transform:translateX(-18px) translateY(12px)}
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   HEADER
+═══════════════════════════════════════════════════════════════ */
+.header{
+  height:56px;padding:0 var(--sp-5);
+  display:flex;align-items:center;justify-content:space-between;
+  background:rgba(14,14,27,.6);
+  backdrop-filter:var(--glass-blur);-webkit-backdrop-filter:var(--glass-blur);
+  border-bottom:1px solid rgba(124,92,255,.1);
+  flex-shrink:0;z-index:100;position:relative;
+  box-shadow:0 1px 24px rgba(124,92,255,.05);
+}
+.logo{display:flex;align-items:center;gap:var(--sp-3)}
+.logo-icon{
+  width:34px;height:34px;border-radius:10px;overflow:hidden;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 0 16px var(--accent-glow);
+  transition:box-shadow var(--t-slow) var(--ease), transform var(--t-slow) var(--ease);
+}
+.logo-icon.thinking{
+  animation:logoPulse 1.8s ease-in-out infinite;
+  box-shadow:0 0 28px var(--accent-glow),0 0 56px rgba(124,92,255,.12);
+}
+@keyframes logoPulse{
+  0%,100%{transform:scale(1);box-shadow:0 0 16px var(--accent-glow)}
+  50%{transform:scale(1.07);box-shadow:0 0 36px rgba(124,92,255,.45),0 0 72px rgba(124,92,255,.12)}
+}
+.logo-icon img{width:100%;height:100%;object-fit:cover;border-radius:10px}
+.logo-text{font-size:var(--text-xl);font-weight:700;color:var(--text);letter-spacing:1.5px}
+.logo-sub{font-size:var(--text-2xs);color:var(--text3);margin-top:-1px;letter-spacing:.5px}
+.header-right{display:flex;align-items:center;gap:var(--sp-2)}
+
+/* Status Badges */
+.status-dot{
+  display:flex;align-items:center;gap:5px;
+  padding:4px 10px;border-radius:var(--r-pill);
+  font-size:var(--text-xs);font-weight:600;
+  background:var(--red-subtle);
+  border:1px solid rgba(239,68,68,.2);
+  color:rgba(239,68,68,.75);
+  transition:var(--transition);cursor:default;user-select:none;
+}
+.status-dot::before{
+  content:'';width:6px;height:6px;border-radius:50%;
+  background:var(--red);flex-shrink:0;
+  box-shadow:0 0 5px rgba(239,68,68,.5);
+}
+.status-dot.on{
+  background:var(--green-subtle);
+  border-color:rgba(16,185,129,.2);
+  color:rgba(16,185,129,.9);
+}
+.status-dot.on::before{
+  background:var(--green);
+  box-shadow:0 0 8px rgba(16,185,129,.6);
+}
+@media(max-width:600px){.status-dot span{display:none}}
+
+/* Icon Buttons */
+.btn-icon{
+  width:34px;height:34px;border-radius:var(--r-sm);
+  border:1px solid var(--border2);
+  background:rgba(14,14,27,.5);
+  color:var(--text2);cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  font-size:15px;transition:var(--transition);
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+  position:relative;
+}
+.btn-icon:hover{
+  background:var(--accent-subtle);
+  border-color:rgba(124,92,255,.3);
+  color:var(--text);
+  box-shadow:0 0 12px rgba(124,92,255,.15);
+}
+.btn-icon:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.btn-icon:active{transform:scale(.92)}
+
+/* ═══════════════════════════════════════════════════════════════
+   STATE BAR
+═══════════════════════════════════════════════════════════════ */
+.state-bar{
+  height:30px;padding:0 var(--sp-5);
+  display:flex;align-items:center;justify-content:center;gap:var(--sp-3);
+  background:rgba(18,18,32,.5);
+  backdrop-filter:blur(20px) saturate(1.4);-webkit-backdrop-filter:blur(20px) saturate(1.4);
+  border-bottom:1px solid var(--border);
+  flex-shrink:0;z-index:99;
+  font-size:var(--text-xs);font-weight:500;
+  color:var(--text3);
+  transition:background var(--t-slow) var(--ease), color var(--t-slow) var(--ease);
+}
+.state-icon{font-size:13px;flex-shrink:0}
+.state-text{letter-spacing:.2px}
+.state-ping{
+  margin-left:auto;font-size:var(--text-2xs);
+  font-family:var(--mono);color:var(--text3);
+  display:flex;align-items:center;gap:4px;
+}
+.ping-dot{width:5px;height:5px;border-radius:50%;background:var(--text3);flex-shrink:0}
+
+.state-bar[data-state="idle"]        {color:var(--text2)}
+.state-bar[data-state="idle"] .state-icon{color:var(--green)}
+.state-bar[data-state="listening"]   {color:var(--red);background:rgba(239,68,68,.06)}
+.state-bar[data-state="listening"] .state-icon{animation:micPulseSmall 1.2s infinite}
+.state-bar[data-state="processing"]  {color:var(--amber);background:rgba(245,158,11,.06)}
+.state-bar[data-state="processing"] .state-icon{animation:spin 1.5s linear infinite}
+.state-bar[data-state="executing"]   {color:var(--blue);background:rgba(59,130,246,.06)}
+.state-bar[data-state="executing"] .state-icon{animation:executePulse 1s infinite}
+.state-bar[data-state="searching"]   {color:var(--accent2);background:rgba(124,92,255,.06)}
+.state-bar[data-state="searching"] .state-icon{animation:spin 2s linear infinite}
+
+@keyframes micPulseSmall{0%,100%{opacity:1}50%{opacity:.4}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes executePulse{0%,100%{opacity:1}50%{opacity:.35}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+
+/* ═══════════════════════════════════════════════════════════════
+   MAIN GRID
+═══════════════════════════════════════════════════════════════ */
+.main{
+  flex:1;display:grid;overflow:hidden;position:relative;z-index:1;
+  grid-template-columns:288px 1fr 388px;
+  grid-template-rows:1fr auto;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   LEFT PANEL — Map + Telemetry
+═══════════════════════════════════════════════════════════════ */
+.panel-left{
+  grid-row:1/3;
+  display:flex;flex-direction:column;
+  background:rgba(12,12,22,.55);
+  border-right:1px solid var(--border);
+  overflow-y:auto;overflow-x:hidden;
+}
+.panel-left::-webkit-scrollbar{width:2px}
+.panel-left::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:2px}
+
+/* Panel section headers */
+.panel-section-header{
+  padding:var(--sp-3) var(--sp-3) var(--sp-2);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.panel-section-label{
+  font-size:var(--text-2xs);font-weight:700;
+  text-transform:uppercase;letter-spacing:1.2px;
+  color:var(--text3);
+  display:flex;align-items:center;gap:5px;
+}
+
+/* Map */
+.map-section{padding:var(--sp-3);flex-shrink:0}
+.map-section h3{
+  font-size:var(--text-2xs);text-transform:uppercase;letter-spacing:1.2px;
+  color:var(--text3);margin-bottom:var(--sp-2);
+  display:flex;align-items:center;gap:5px;font-weight:700;
+}
+.map-live{
+  width:100%;aspect-ratio:1;
+  background:var(--bg);border-radius:var(--r);border:1px solid var(--border);
+  position:relative;overflow:hidden;cursor:pointer;
+  transition:border-color var(--t) var(--ease), box-shadow var(--t) var(--ease);
+}
+.map-live:hover{border-color:rgba(124,92,255,.2);box-shadow:0 0 16px rgba(124,92,255,.08)}
+.map-live canvas{position:absolute;inset:0;width:100%;height:100%}
+.map-live .map-label{
+  position:absolute;bottom:4px;left:6px;
+  font-size:var(--text-2xs);color:var(--text3);
+  font-family:var(--mono);pointer-events:none;
+}
+.map-live .map-pos-label{
+  position:absolute;top:4px;right:6px;
+  font-size:var(--text-xs);color:var(--accent3);
+  font-family:var(--mono);pointer-events:none;
+  background:rgba(0,0,0,.55);padding:2px 6px;border-radius:4px;
+}
+
+/* Telemetry */
+.telem-section{padding:0 var(--sp-3) var(--sp-3);display:flex;flex-direction:column;gap:6px}
+
+.telem-compact{
+  padding:var(--sp-2) var(--sp-3);
+  border-radius:var(--r-sm);
+  background:rgba(21,21,36,.7);
+  border:1px solid var(--border);
+  transition:border-color var(--t) var(--ease);
+}
+.telem-compact:hover{border-color:var(--border2)}
+
+.telem-compact h4{
+  font-size:var(--text-2xs);color:var(--text3);
+  text-transform:uppercase;letter-spacing:1px;font-weight:700;
+  margin-bottom:6px;display:flex;align-items:center;gap:4px;
+}
+.telem-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:3px 0;
+}
+.telem-label{font-size:var(--text-sm);color:var(--text3)}
+.telem-value{
+  font-family:var(--mono);font-weight:600;
+  font-size:var(--text-sm);color:var(--text);
+  text-align:right;
+}
+.telem-value.good{color:var(--green)}
+.telem-value.warn{color:var(--amber)}
+.telem-value.bad{color:var(--red)}
+
+.telem-bar{
+  height:3px;background:rgba(255,255,255,.05);
+  border-radius:2px;margin-top:4px;overflow:hidden;
+}
+.telem-bar-fill{
+  height:100%;border-radius:2px;
+  transition:width .6s var(--ease), background .6s var(--ease);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   CENTER PANEL — Camera + Controls
+═══════════════════════════════════════════════════════════════ */
+.panel-center{
+  display:flex;flex-direction:column;overflow:hidden;
+  border-right:1px solid var(--border);
+}
+
+/* Camera */
+.camera-main{
+  flex:1;position:relative;
+  background:#06060e;
+  display:flex;align-items:center;justify-content:center;
+  min-height:0;overflow:hidden;
+}
+.camera-main img{
+  max-width:100%;max-height:100%;
+  object-fit:contain;display:block;cursor:pointer;
+}
+.cam-label{
+  position:absolute;top:10px;left:10px;
+  padding:3px 10px;border-radius:var(--r-sm);
+  background:rgba(0,0,0,.72);font-size:var(--text-2xs);font-weight:700;
+  color:var(--text3);display:flex;align-items:center;gap:5px;z-index:2;
+  letter-spacing:.5px;text-transform:uppercase;
+  border:1px solid rgba(255,255,255,.06);
+}
+.cam-label::before{
+  content:'';width:6px;height:6px;border-radius:50%;background:var(--red);flex-shrink:0;
+}
+.camera-main.live .cam-label{color:var(--green)}
+.camera-main.live .cam-label::before{
+  background:var(--green);
+  box-shadow:0 0 6px var(--green-glow);
+  animation:camBlink 2s ease-in-out infinite;
+}
+@keyframes camBlink{0%,90%,100%{opacity:1}95%{opacity:.3}}
+
+/* Camera hover actions */
+.cam-actions-bar{
+  position:absolute;bottom:0;left:0;right:0;
+  padding:var(--sp-2) var(--sp-2);
+  background:linear-gradient(transparent,rgba(0,0,0,.75));
+  display:flex;align-items:center;justify-content:center;gap:6px;
+  opacity:0;transition:opacity var(--t) var(--ease);z-index:2;
+}
+.camera-main:hover .cam-actions-bar{opacity:1}
+.cam-actions-bar button{
+  padding:5px 12px;border-radius:var(--r-sm);
+  border:1px solid rgba(255,255,255,.18);
+  background:rgba(0,0,0,.55);color:var(--text);
+  font-size:var(--text-sm);cursor:pointer;
+  transition:var(--transition);font-family:var(--font);
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+}
+.cam-actions-bar button:hover{
+  background:rgba(124,92,255,.25);
+  border-color:var(--accent);
+}
+
+/* Camera offline / no feed state */
+.camera-no-feed{
+  position:absolute;inset:0;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:var(--sp-3);color:var(--text3);text-align:center;
+  background:var(--bg);
+}
+.camera-no-feed svg{opacity:.2}
+.camera-no-feed span{font-size:var(--text-sm);color:var(--text3)}
+.camera-no-feed small{font-size:var(--text-xs);color:var(--text4);margin-top:-var(--sp-2)}
+
+/* Bounding Box */
+.cam-bbox-overlay{position:absolute;inset:0;pointer-events:none;z-index:3}
+.cam-bbox-overlay .bbox{
+  position:absolute;border:2px solid var(--green);border-radius:5px;
+  transition:all .35s var(--ease);
+}
+.cam-bbox-overlay .bbox-label{
+  position:absolute;top:-20px;left:0;
+  padding:2px 7px;border-radius:4px;
+  background:var(--green);color:#000;
+  font-size:var(--text-2xs);font-weight:700;
+  white-space:nowrap;letter-spacing:.3px;
+}
+.cam-bbox-overlay .bbox.searching{border-color:var(--amber);animation:bboxPulse 1s infinite}
+.cam-bbox-overlay .bbox.searching .bbox-label{background:var(--amber)}
+@keyframes bboxPulse{0%,100%{opacity:1}50%{opacity:.35}}
+
+/* ── Control Strip ── */
+.control-strip{
+  flex-shrink:0;padding:var(--sp-2) var(--sp-3);
+  background:rgba(12,12,22,.6);
+  border-top:1px solid var(--border);
+  display:flex;align-items:center;
+  justify-content:center;gap:var(--sp-2);
+  flex-wrap:nowrap;overflow-x:auto;
+}
+.control-strip::-webkit-scrollbar{height:0}
+
+/* Control groups */
+.ctrl-group{display:flex;align-items:center;gap:4px}
+.ctrl-sep{
+  width:1px;height:24px;background:var(--border2);flex-shrink:0;
+  margin:0 var(--sp-1);
+}
+
+/* Control buttons */
+.ctrl-btn{
+  padding:6px 12px;
+  border-radius:var(--r-sm);
+  border:1px solid var(--border2);
+  background:rgba(18,18,32,.6);
+  color:var(--text2);
+  font-size:var(--text-sm);font-weight:500;
+  cursor:pointer;transition:var(--transition);
+  font-family:var(--font);
+  display:flex;align-items:center;gap:4px;
+  white-space:nowrap;
+  min-height:32px;
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+}
+.ctrl-btn:hover{
+  background:var(--accent-subtle);
+  border-color:rgba(124,92,255,.3);
+  color:var(--accent2);
+  box-shadow:0 0 12px rgba(124,92,255,.1);
+  transform:translateY(-1px);
+}
+.ctrl-btn:active{transform:scale(.94) translateY(0)}
+.ctrl-btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+.ctrl-btn.search-btn:hover{
+  background:var(--blue-subtle);
+  border-color:rgba(59,130,246,.3);
+  color:var(--blue);
+  box-shadow:0 0 12px rgba(59,130,246,.1);
+}
+.ctrl-btn.nav-btn:hover{
+  background:var(--green-subtle);
+  border-color:rgba(16,185,129,.25);
+  color:var(--green);
+}
+.ctrl-btn.danger{border-color:rgba(239,68,68,.25);color:var(--red)}
+.ctrl-btn.danger:hover{
+  background:var(--red-subtle);
+  border-color:rgba(239,68,68,.4);
+  box-shadow:0 0 12px rgba(239,68,68,.12);
+  transform:translateY(-1px);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   RIGHT PANEL — Chat
+═══════════════════════════════════════════════════════════════ */
+.panel-right{
+  grid-row:1/3;
+  display:flex;flex-direction:column;overflow:hidden;
+  background:rgba(10,10,20,.4);
+}
+
+.chat-header{
+  padding:var(--sp-2) var(--sp-4);
+  border-bottom:1px solid var(--border);
+  flex-shrink:0;
+  display:flex;align-items:center;gap:var(--sp-2);
+  min-height:44px;
+}
+.chat-header h3{
+  font-size:var(--text-sm);font-weight:600;
+  color:var(--text2);
+  display:flex;align-items:center;gap:6px;
+}
+.chat-header-badge{
+  font-size:var(--text-2xs);font-weight:500;
+  color:var(--text3);
+  background:var(--bg3);
+  padding:1px 7px;border-radius:var(--r-pill);
+  border:1px solid var(--border);
+}
+
+/* ── Chat Area ── */
+.chat-area{
+  flex:1;overflow-y:auto;overflow-x:hidden;
+  scroll-behavior:smooth;padding:var(--sp-3) 0;
+}
+.chat-area::-webkit-scrollbar{width:2px}
+.chat-area::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:2px}
+
+.chat-container{padding:0 var(--sp-4)}
+
+/* Welcome screen */
+.welcome{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  min-height:calc(100vh - 300px);text-align:center;gap:var(--sp-4);
+  animation:fadeUp .5s var(--ease) both;
+}
+.welcome.shrinking{
+  animation:heroShrink .7s var(--ease) forwards;
+}
+@keyframes heroShrink{
+  0%{opacity:1;transform:scale(1) translateY(0)}
+  100%{opacity:0;transform:scale(.55) translateY(-36px);height:0;margin:0;padding:0;overflow:hidden}
+}
+.welcome-icon{
+  width:72px;height:72px;border-radius:22px;overflow:hidden;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 0 48px var(--accent-glow),0 0 96px rgba(124,92,255,.1);
+  animation:float 3.5s ease-in-out infinite;
+  border:1px solid rgba(124,92,255,.2);
+}
+.welcome-icon img{width:100%;height:100%;object-fit:cover;border-radius:22px}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+
+.welcome h2{
+  font-size:var(--text-3xl);font-weight:700;color:var(--text);
+  letter-spacing:.5px;margin-top:var(--sp-1);
+  text-shadow:0 0 32px rgba(124,92,255,.12);
+}
+.welcome p{font-size:var(--text-lg);color:var(--text2);max-width:320px;line-height:1.6}
+.welcome-hint{
+  display:flex;flex-direction:column;gap:var(--sp-1);align-items:center;margin-top:var(--sp-1);
+}
+.welcome-hint span{
+  font-size:var(--text-xs);color:var(--text3);
+  background:var(--bg3);
+  padding:4px 12px;border-radius:var(--r-pill);
+  border:1px solid var(--border);
+  cursor:pointer;transition:var(--transition);
+}
+.welcome-hint span:hover{background:var(--accent-subtle);border-color:rgba(124,92,255,.25);color:var(--accent2)}
+
+/* ── Messages ── */
+.msg-group{
+  display:flex;gap:var(--sp-2);margin-bottom:var(--sp-4);
+  animation:msgIn .28s var(--ease) both;
+}
+@keyframes msgIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+.msg-group.user{flex-direction:row-reverse}
+
+.msg-avatar{
+  width:30px;height:30px;border-radius:var(--r-sm);
+  flex-shrink:0;display:flex;align-items:center;justify-content:center;
+  font-size:13px;align-self:flex-end;
+}
+.msg-group.vora .msg-avatar{
+  background:linear-gradient(135deg,var(--accent) 0%,#4f46e5 100%);
+  color:#fff;box-shadow:0 2px 8px var(--accent-glow);
+}
+.msg-group.user .msg-avatar{
+  background:var(--surface3);color:var(--text2);
+}
+
+.msg-content{max-width:86%}
+
+.msg-bubble{
+  padding:10px 14px;
+  font-size:var(--text-md);line-height:1.65;
+  word-break:break-word;
+}
+/* VORA bubble — flat top-left corner */
+.msg-group.vora .msg-bubble{
+  border-radius:3px var(--r) var(--r) var(--r);
+  background:rgba(20,20,36,.8);
+  backdrop-filter:blur(16px) saturate(1.4);-webkit-backdrop-filter:blur(16px) saturate(1.4);
+  border:1px solid rgba(124,92,255,.1);
+  border-left:2px solid rgba(124,92,255,.2);
+  box-shadow:var(--shadow-sm);
+}
+/* User bubble — flat top-right corner */
+.msg-group.user .msg-bubble{
+  border-radius:var(--r) 3px var(--r) var(--r);
+  background:var(--accent);color:#fff;
+  box-shadow:0 2px 12px var(--accent-glow);
+}
+
+.msg-meta{
+  display:flex;align-items:center;gap:var(--sp-1);
+  margin-top:5px;padding:0 2px;
+}
+.msg-time{font-size:var(--text-2xs);color:var(--text3)}
+.msg-group.user .msg-meta{flex-direction:row-reverse}
+
+/* Markdown in bubbles */
+.msg-bubble p{margin:0 0 6px}
+.msg-bubble p:last-child{margin-bottom:0}
+.msg-bubble strong{font-weight:600;color:inherit}
+.msg-bubble em{font-style:italic;color:var(--accent2)}
+.msg-bubble code{
+  background:rgba(124,92,255,.14);color:var(--accent2);
+  padding:1px 5px;border-radius:4px;
+  font-family:var(--mono);font-size:var(--text-xs);
+}
+.msg-bubble pre{
+  background:rgba(0,0,0,.35);border:1px solid var(--border);
+  border-radius:var(--r-sm);padding:10px 12px;margin:8px 0;overflow-x:auto;
+}
+.msg-bubble pre code{background:none;padding:0;font-size:var(--text-xs);color:var(--text)}
+.msg-bubble ul,.msg-bubble ol{margin:5px 0;padding-left:18px}
+.msg-bubble li{margin:3px 0;line-height:1.5}
+.msg-bubble blockquote{
+  border-left:2px solid var(--accent);padding-left:10px;
+  margin:6px 0;color:var(--text2);font-style:italic;
+}
+.msg-bubble h1,.msg-bubble h2,.msg-bubble h3{
+  font-size:var(--text-md);font-weight:600;color:var(--text);margin:7px 0 4px;
+}
+.msg-bubble hr{border:none;border-top:1px solid var(--border);margin:7px 0}
+
+/* System messages */
+.msg-system{text-align:center;margin:var(--sp-3) 0;animation:fadeIn .3s}
+.msg-system span{
+  display:inline-block;padding:4px 12px;border-radius:var(--r-pill);
+  font-size:var(--text-xs);color:var(--accent2);
+  background:rgba(124,92,255,.07);
+  border:1px dashed rgba(124,92,255,.18);
+}
+
+/* ── Search Progress Card ── */
+.search-card{
+  margin:var(--sp-3) 0;padding:var(--sp-4);
+  border-radius:var(--r);
+  background:linear-gradient(135deg,rgba(124,92,255,.09),rgba(59,130,246,.05));
+  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  border:1px solid rgba(124,92,255,.2);
+  animation:fadeIn .3s;
+  box-shadow:0 4px 24px rgba(124,92,255,.07);
+}
+.search-header{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.search-icon{font-size:18px;animation:spin 2s linear infinite}
+.search-title{font-size:var(--text-md);font-weight:600;color:var(--accent2)}
+.search-status{font-size:var(--text-xs);color:var(--text2);line-height:1.5;font-family:var(--mono)}
+.search-progress{
+  margin-top:10px;height:3px;
+  background:rgba(124,92,255,.1);border-radius:2px;overflow:hidden;
+}
+.search-progress-bar{
+  height:100%;
+  background:linear-gradient(90deg,var(--accent),var(--accent2),var(--green));
+  background-size:200% 100%;
+  animation:progressShimmer 2s linear infinite;
+  width:0%;transition:width .6s var(--ease);border-radius:2px;
+}
+@keyframes progressShimmer{0%{background-position:100% 0}100%{background-position:-100% 0}}
+.search-cancel{
+  margin-top:10px;padding:5px 12px;border-radius:var(--r-sm);
+  font-size:var(--text-xs);
+  background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.22);
+  color:var(--red);cursor:pointer;transition:var(--transition);font-family:var(--font);
+}
+.search-cancel:hover{background:rgba(239,68,68,.18)}
+
+/* ── Found Card ── */
+.found-card{
+  margin:var(--sp-3) 0;padding:var(--sp-4);
+  border-radius:var(--r);overflow:hidden;
+  background:linear-gradient(135deg,rgba(16,185,129,.09),rgba(16,185,129,.03));
+  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  border:1px solid rgba(16,185,129,.28);
+  animation:fadeIn .3s;
+  box-shadow:0 4px 24px rgba(16,185,129,.08);
+}
+.found-header{
+  display:flex;align-items:center;gap:var(--sp-2);
+  font-size:var(--text-lg);font-weight:600;color:var(--green);
+  margin-bottom:var(--sp-3);
+}
+.found-img{
+  width:100%;max-height:200px;object-fit:cover;
+  border-radius:var(--r-sm);
+  border:1px solid rgba(16,185,129,.2);
+  box-shadow:var(--shadow);
+}
+.found-text{font-size:var(--text-base);color:var(--text2);margin-top:var(--sp-2);line-height:1.6}
+.found-coords{
+  font-size:var(--text-xs);color:var(--accent2);margin-top:var(--sp-2);
+  padding:5px 10px;background:rgba(124,92,255,.07);border-radius:var(--r-sm);
+  font-family:var(--mono);border-left:2px solid var(--accent);
+}
+
+/* ── Obstacle Card ── */
+.obstacle-card{
+  margin:var(--sp-3) 0;padding:var(--sp-3);border-radius:var(--r);
+  background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.22);
+  animation:fadeIn .3s;font-size:var(--text-base);color:var(--amber);
+}
+
+/* ── Chain of Thought ── */
+.cot-card{
+  margin:var(--sp-3) 0;padding:var(--sp-4);border-radius:var(--r);
+  background:linear-gradient(135deg,rgba(20,20,40,.8),rgba(26,26,50,.65));
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border:1px solid rgba(124,92,255,.16);
+  animation:fadeIn .3s;overflow:hidden;
+  box-shadow:0 4px 24px rgba(124,92,255,.08),inset 0 1px 0 rgba(255,255,255,.04);
+}
+.cot-header{
+  display:flex;align-items:center;justify-content:space-between;
+  cursor:pointer;padding-bottom:10px;
+}
+.cot-title{
+  font-size:var(--text-base);font-weight:600;color:var(--accent2);
+  display:flex;align-items:center;gap:var(--sp-2);
+}
+.cot-toggle{font-size:var(--text-2xs);color:var(--text3);transition:transform .25s var(--ease)}
+.cot-card.collapsed .cot-toggle{transform:rotate(-90deg)}
+.cot-card.collapsed .cot-steps{height:0;overflow:hidden;padding:0;margin:0}
+.cot-steps{
+  padding-top:10px;border-top:1px solid rgba(124,92,255,.1);
+  max-height:600px;overflow-y:auto;
+  scrollbar-width:thin;scrollbar-color:rgba(124,92,255,.2) transparent;
+}
+.cot-steps::-webkit-scrollbar{width:3px}
+.cot-steps::-webkit-scrollbar-thumb{background:rgba(124,92,255,.22);border-radius:2px}
+.cot-step{
+  display:flex;align-items:flex-start;gap:var(--sp-2);
+  padding:7px var(--sp-2);margin:2px 0;
+  font-size:var(--text-xs);color:var(--text2);line-height:1.6;
+  animation:cotStepIn .35s var(--ease);
+  font-family:var(--mono);border-radius:var(--r-sm);
+  transition:background var(--t-fast) var(--ease);
+}
+.cot-step:hover{background:rgba(124,92,255,.05)}
+@keyframes cotStepIn{from{opacity:0;transform:translateX(-7px)}to{opacity:1;transform:translateX(0)}}
+.cot-icon{font-size:14px;flex-shrink:0;min-width:20px;text-align:center;margin-top:1px}
+.cot-text{color:var(--text2);flex:1}
+.cot-text strong{color:var(--text);font-weight:600}
+.cot-step.active{background:rgba(124,92,255,.07);border-left:2px solid var(--accent2)}
+.cot-step.active .cot-text{color:var(--accent2)}
+.cot-step.done .cot-text{color:var(--green)}
+.cot-step.done .cot-icon{color:var(--green)}
+.cot-spinner{
+  display:inline-block;width:11px;height:11px;
+  border:1.5px solid var(--accent);border-top-color:transparent;
+  border-radius:50%;animation:spin .7s linear infinite;
+  margin-right:4px;vertical-align:middle;
+}
+.cot-vlm-desc{
+  display:block;margin-top:4px;padding:4px 8px;
+  font-size:var(--text-xs);line-height:1.5;color:var(--text3);
+  background:rgba(255,255,255,.03);border-radius:var(--r-sm);
+  border-left:2px solid rgba(59,130,246,.3);
+  font-family:var(--font);
+  max-height:4.5em;overflow:hidden;cursor:pointer;
+  transition:max-height .3s var(--ease);
+}
+.cot-vlm-desc.expanded{max-height:none}
+.cot-reason{font-style:italic;color:var(--text3);font-size:var(--text-xs)}
+.cot-thinking-block{
+  margin-top:6px;border-radius:var(--r-sm);
+  background:rgba(0,0,0,.12);border:1px solid rgba(255,255,255,.05);
+  overflow:hidden;cursor:pointer;transition:border-color var(--t-fast) var(--ease);
+  font-family:var(--font);
+}
+.cot-thinking-block:hover{border-color:rgba(255,255,255,.1)}
+.cot-thinking-header{
+  display:flex;align-items:center;gap:5px;padding:5px 10px;
+  font-size:var(--text-xs);color:var(--text2);user-select:none;
+}
+.cot-thinking-icon{font-size:12px}
+.cot-thinking-toggle{margin-left:auto;font-size:var(--text-2xs);color:var(--text3);transition:transform .2s var(--ease)}
+.cot-thinking-block.expanded .cot-thinking-toggle{transform:rotate(90deg)}
+.cot-thinking-body{
+  max-height:0;overflow:hidden;padding:0 10px;
+  font-size:var(--text-xs);line-height:1.6;color:var(--text3);
+  transition:max-height .3s var(--ease),padding .3s var(--ease);
+  white-space:pre-wrap;word-break:break-word;
+}
+.cot-thinking-block.expanded .cot-thinking-body{
+  max-height:300px;overflow-y:auto;padding:4px 10px 8px;
+  scrollbar-width:thin;scrollbar-color:rgba(124,92,255,.2) transparent;
+}
+.cot-thinking-block.vlm{border-left:2px solid rgba(59,130,246,.4)}
+.cot-thinking-block.llm{border-left:2px solid rgba(167,139,250,.4)}
+.cot-thinking-block.llm.found{border-left-color:var(--green);background:rgba(16,185,129,.05)}
+.cot-thinking-block.llm.found .cot-thinking-header{color:var(--green)}
+.cot-thinking-block.llm.partial{border-left-color:var(--amber);background:rgba(245,158,11,.05)}
+.cot-thinking-block.llm.partial .cot-thinking-header{color:var(--amber)}
+.cot-thinking-block.llm.notfound .cot-thinking-header{color:var(--text3)}
+
+/* ── Skeleton loading ── */
+.skeleton-line{
+  height:13px;border-radius:6px;margin:7px 0;
+  background:linear-gradient(90deg,var(--bg3) 25%,var(--bg4) 50%,var(--bg3) 75%);
+  background-size:200% 100%;animation:shimmer 1.5s ease-in-out infinite;
+}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.skeleton-line:nth-child(1){width:85%}
+.skeleton-line:nth-child(2){width:70%}
+.skeleton-line:nth-child(3){width:52%}
+
+/* Ambient glow during AI processing */
+.chat-container.ai-active::before{
+  content:'';position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);
+  width:280px;height:280px;border-radius:50%;
+  background:radial-gradient(circle,rgba(124,92,255,.05) 0%,transparent 70%);
+  pointer-events:none;z-index:0;animation:ambientPulse 3s ease-in-out infinite;
+}
+@keyframes ambientPulse{
+  0%,100%{opacity:.4;transform:translate(-50%,-50%) scale(1)}
+  50%{opacity:1;transform:translate(-50%,-50%) scale(1.3)}
+}
+
+/* Typewriter cursor */
+.msg-bubble.typewriter .tw-cursor{
+  display:inline-block;width:2px;height:1em;background:var(--accent);
+  margin-left:2px;vertical-align:text-bottom;
+  animation:twBlink .55s step-end infinite;
+}
+@keyframes twBlink{0%,100%{opacity:1}50%{opacity:0}}
+
+/* ═══════════════════════════════════════════════════════════════
+   INPUT AREA
+═══════════════════════════════════════════════════════════════ */
+.input-area{
+  flex-shrink:0;padding:var(--sp-2) var(--sp-4) var(--sp-4);
+  background:linear-gradient(180deg,transparent 0%,rgba(10,10,20,.85) 28%);
+  border-top:1px solid var(--border);
+}
+
+/* Quick Chips */
+.chips{
+  display:flex;gap:6px;flex-wrap:wrap;justify-content:center;
+  margin-bottom:var(--sp-3);padding-top:var(--sp-1);
+}
+.chip{
+  padding:6px 14px;border-radius:var(--r-pill);
+  font-size:var(--text-xs);font-weight:500;
+  background:rgba(18,18,32,.6);
+  backdrop-filter:blur(12px) saturate(1.3);-webkit-backdrop-filter:blur(12px) saturate(1.3);
+  border:1px solid rgba(124,92,255,.1);color:var(--text2);
+  cursor:pointer;transition:var(--transition);white-space:nowrap;
+  display:flex;align-items:center;gap:4px;
+  box-shadow:0 1px 6px rgba(0,0,0,.2),inset 0 1px 0 rgba(255,255,255,.03);
+}
+.chip:hover{
+  background:var(--accent-subtle);border-color:rgba(124,92,255,.3);color:var(--accent2);
+  box-shadow:0 0 16px rgba(124,92,255,.15),0 3px 12px rgba(0,0,0,.25);
+  transform:translateY(-1px);
+}
+.chip:active{transform:scale(.95) translateY(0)}
+.chip:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.chip.danger{border-color:rgba(239,68,68,.2);color:rgba(239,68,68,.7)}
+.chip.danger:hover{
+  background:var(--red-subtle);border-color:rgba(239,68,68,.35);color:var(--red);
+  box-shadow:0 0 16px rgba(239,68,68,.1);
+}
+
+/* Transcript */
+.transcript-bar{
+  text-align:center;padding:3px 0;
+  font-size:var(--text-xs);color:var(--text3);
+  min-height:18px;transition:var(--transition);
+}
+.transcript-bar.active{color:var(--accent2)}
+
+/* Input Box */
+.input-box{
+  display:flex;align-items:flex-end;gap:var(--sp-2);
+  padding:var(--sp-2) var(--sp-2) var(--sp-2) var(--sp-4);
+  background:rgba(18,18,34,.6);
+  backdrop-filter:blur(24px) saturate(1.6);-webkit-backdrop-filter:blur(24px) saturate(1.6);
+  border:1px solid rgba(124,92,255,.12);
+  border-radius:var(--r-xl);
+  transition:var(--transition);position:relative;
+  box-shadow:0 4px 28px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.04);
+}
+.input-box:focus-within{
+  border-color:var(--accent);
+  box-shadow:0 0 0 3px var(--accent-glow),0 0 36px rgba(124,92,255,.12),inset 0 1px 0 rgba(255,255,255,.05);
+}
+.input-box textarea{
+  flex:1;background:none;border:none;outline:none;
+  color:var(--text);font-family:var(--font);
+  font-size:var(--text-lg);line-height:1.5;resize:none;
+  max-height:120px;min-height:24px;padding:4px 0;
+}
+.input-box textarea::placeholder{color:var(--text3)}
+
+/* Send / Mic buttons */
+.input-btn{
+  width:40px;height:40px;border-radius:50%;border:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  font-size:17px;transition:var(--transition);flex-shrink:0;
+}
+.input-btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.input-btn:active{transform:scale(.90)}
+
+.input-btn.mic{background:var(--accent);color:#fff;position:relative;overflow:visible}
+.input-btn.mic:hover{background:var(--accent2);box-shadow:0 0 18px var(--accent-glow)}
+.input-btn.mic.recording{
+  background:var(--red);animation:micPulse 1.15s infinite;
+}
+@keyframes micPulse{
+  0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,.4)}
+  50%{box-shadow:0 0 0 11px rgba(239,68,68,0)}
+}
+.input-btn.mic.speaking{background:var(--green)}
+.input-btn.send{background:var(--bg3);color:var(--text2)}
+.input-btn.send:hover{background:var(--accent);color:#fff;box-shadow:var(--shadow-accent)}
+.input-btn.send.has-text{background:var(--accent);color:#fff}
+
+/* Mic glow ring */
+.mic-glow-ring{
+  position:absolute;inset:-8px;border-radius:50%;
+  border:2px solid transparent;pointer-events:none;opacity:0;
+  transition:opacity var(--t-slow) var(--ease);
+}
+.input-btn.mic.recording .mic-glow-ring{
+  opacity:1;border-color:rgba(239,68,68,.4);
+  animation:micGlowExpand 1.5s ease-out infinite;
+}
+.input-btn.mic.speaking .mic-glow-ring{
+  opacity:1;border-color:rgba(124,92,255,.4);
+  animation:micGlowExpand 1.5s ease-out infinite;
+}
+@keyframes micGlowExpand{
+  0%{transform:scale(1);opacity:.7}
+  100%{transform:scale(1.8);opacity:0}
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   CAMERA FULLSCREEN
+═══════════════════════════════════════════════════════════════ */
+.camera-full{
+  position:fixed;inset:0;z-index:200;
+  background:rgba(0,0,0,.92);backdrop-filter:blur(10px);
+  display:none;flex-direction:column;align-items:center;justify-content:center;
+}
+.camera-full.show{display:flex}
+.camera-full img{
+  max-width:90vw;max-height:70vh;border-radius:var(--r);object-fit:contain;
+}
+.cam-close{
+  position:absolute;top:var(--sp-4);right:var(--sp-4);
+  width:40px;height:40px;border-radius:var(--r);
+  background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.14);
+  color:#fff;font-size:18px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:var(--transition);
+}
+.cam-close:hover{background:rgba(255,255,255,.2)}
+.cam-actions{display:flex;gap:var(--sp-3);margin-top:var(--sp-4)}
+.cam-actions button{
+  padding:10px var(--sp-5);border-radius:var(--r);
+  border:1px solid var(--border2);
+  background:var(--bg3);color:var(--text);
+  font-size:var(--text-md);cursor:pointer;font-family:var(--font);
+  display:flex;align-items:center;gap:6px;transition:var(--transition);
+}
+.cam-actions button:hover{background:var(--bg4);border-color:var(--accent)}
+
+/* ═══════════════════════════════════════════════════════════════
+   SETTINGS OVERLAY
+═══════════════════════════════════════════════════════════════ */
+.settings-overlay{
+  position:fixed;inset:0;z-index:300;
+  background:rgba(0,0,0,.65);backdrop-filter:blur(6px);
+  display:none;align-items:center;justify-content:center;
+  padding:var(--sp-5);
+}
+.settings-overlay.show{display:flex}
+
+.settings-panel{
+  width:min(460px,94vw);
+  border-radius:var(--r-xl);
+  background:rgba(16,16,30,.8);
+  backdrop-filter:blur(32px) saturate(1.7);-webkit-backdrop-filter:blur(32px) saturate(1.7);
+  border:1px solid rgba(124,92,255,.14);
+  box-shadow:0 24px 80px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,255,255,.05);
+  overflow:hidden;
+}
+.settings-panel-header{
+  padding:var(--sp-5) var(--sp-6) var(--sp-4);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.settings-panel-header h3{
+  font-size:var(--text-xl);font-weight:700;color:var(--text);
+  display:flex;align-items:center;gap:var(--sp-2);
+}
+.settings-panel-body{padding:var(--sp-4) var(--sp-6) var(--sp-6)}
+
+.settings-section{margin-bottom:var(--sp-5)}
+.settings-section:last-of-type{margin-bottom:0}
+.settings-section-label{
+  font-size:var(--text-2xs);font-weight:700;
+  text-transform:uppercase;letter-spacing:1.2px;
+  color:var(--text3);margin-bottom:var(--sp-3);
+  padding-bottom:var(--sp-2);
+  border-bottom:1px solid var(--border);
+}
+
+.settings-group{margin-bottom:var(--sp-3)}
+.settings-group:last-child{margin-bottom:0}
+.settings-group label{
+  display:block;font-size:var(--text-sm);color:var(--text2);
+  margin-bottom:6px;font-weight:500;
+}
+.settings-group input,
+.settings-group select{
+  width:100%;padding:9px var(--sp-3);
+  border-radius:var(--r);border:1px solid var(--border2);
+  background:rgba(255,255,255,.04);color:var(--text);
+  font-size:var(--text-md);font-family:var(--font);outline:none;
+  transition:border-color var(--t-fast) var(--ease), box-shadow var(--t-fast) var(--ease);
+}
+.settings-group input:focus,
+.settings-group select:focus{
+  border-color:var(--accent);
+  box-shadow:0 0 0 3px rgba(124,92,255,.15);
+}
+.settings-group select option{background:var(--bg3)}
+
+.settings-actions{
+  display:flex;gap:var(--sp-2);justify-content:flex-end;
+  padding:var(--sp-4) var(--sp-6) var(--sp-5);
+  border-top:1px solid var(--border);
+  margin-top:var(--sp-1);
+}
+.settings-actions button{
+  padding:9px var(--sp-5);border-radius:var(--r);
+  font-size:var(--text-md);font-weight:500;cursor:pointer;
+  border:1px solid var(--border2);transition:var(--transition);font-family:var(--font);
+}
+.btn-save{
+  background:var(--accent);color:#fff;border-color:var(--accent)!important;
+  box-shadow:0 2px 12px var(--accent-glow);
+}
+.btn-save:hover{background:var(--accent2);box-shadow:0 4px 18px var(--accent-glow)}
+.btn-cancel{background:transparent;color:var(--text2)}
+.btn-cancel:hover{background:rgba(255,255,255,.05);color:var(--text)}
+
+/* ═══════════════════════════════════════════════════════════════
+   MEMORY SIDEBAR
+═══════════════════════════════════════════════════════════════ */
+.memory-overlay{
+  position:fixed;inset:0;z-index:250;
+  background:rgba(0,0,0,.5);backdrop-filter:blur(2px);
+  display:none;
+}
+.memory-overlay.show{display:block}
+
+.memory-panel{
+  position:fixed;top:0;right:-390px;width:370px;height:100%;z-index:260;
+  background:var(--bg2);border-left:1px solid var(--border2);
+  transition:right .3s var(--ease);display:flex;flex-direction:column;
+}
+.memory-panel.show{right:0}
+
+.memory-header{
+  padding:var(--sp-4) var(--sp-5);border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;flex-shrink:0;
+}
+.memory-header h3{font-size:var(--text-xl);font-weight:700;display:flex;align-items:center;gap:var(--sp-2)}
+.memory-header-actions{display:flex;gap:var(--sp-2);align-items:center}
+
+.memory-list{flex:1;overflow-y:auto;padding:var(--sp-3)}
+.memory-list::-webkit-scrollbar{width:2px}
+.memory-list::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:2px}
+
+.memory-item{
+  padding:var(--sp-3);margin-bottom:var(--sp-2);
+  border-radius:var(--r);background:var(--bg3);border:1px solid var(--border);
+  transition:border-color var(--t-fast) var(--ease);
+}
+.memory-item:hover{border-color:var(--border2)}
+.memory-item h4{
+  font-size:var(--text-md);color:var(--accent2);
+  margin-bottom:4px;display:flex;align-items:center;gap:5px;font-weight:600;
+}
+.memory-item p{font-size:var(--text-sm);color:var(--text2);line-height:1.5}
+.mem-time{font-size:var(--text-xs);color:var(--text3);margin-top:4px}
+.mem-coords{font-size:var(--text-xs);color:var(--accent2);margin-top:3px;font-family:var(--mono);opacity:.8}
+
+.memory-empty{
+  text-align:center;padding:var(--sp-8) var(--sp-5);
+  display:flex;flex-direction:column;align-items:center;gap:var(--sp-3);
+}
+.memory-empty-icon{font-size:36px;opacity:.25}
+.memory-empty-title{font-size:var(--text-md);color:var(--text2);font-weight:500}
+.memory-empty-sub{font-size:var(--text-sm);color:var(--text3);line-height:1.5;max-width:240px}
+
+/* ═══════════════════════════════════════════════════════════════
+   D-PAD
+═══════════════════════════════════════════════════════════════ */
+.dpad-overlay{
+  position:fixed;bottom:104px;left:var(--sp-5);z-index:80;
+  display:none;transform-origin:bottom left;
+}
+.dpad-overlay.show{display:block;animation:dpadIn .3s var(--ease-spring) forwards}
+.dpad-overlay.hiding{animation:dpadOut .22s var(--ease) forwards}
+@keyframes dpadIn{from{opacity:0;transform:scale(.5) translateY(18px)}to{opacity:1;transform:scale(1) translateY(0)}}
+@keyframes dpadOut{from{opacity:1;transform:scale(1)}to{opacity:0;transform:scale(.5) translateY(18px)}}
+
+.dpad{display:grid;grid-template-columns:repeat(3,48px);grid-template-rows:repeat(3,48px);gap:4px}
+.dpad button{
+  width:48px;height:48px;border-radius:var(--r);
+  border:1px solid rgba(124,92,255,.14);
+  background:rgba(16,16,32,.72);
+  backdrop-filter:blur(16px) saturate(1.4);-webkit-backdrop-filter:blur(16px) saturate(1.4);
+  color:var(--text);font-size:17px;cursor:pointer;font-family:var(--font);
+  display:flex;align-items:center;justify-content:center;
+  transition:all .15s var(--ease);
+  box-shadow:0 2px 10px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.05);
+}
+.dpad button:hover{
+  background:var(--accent-subtle);border-color:rgba(124,92,255,.3);
+  transform:scale(1.06);
+}
+.dpad button:active,.dpad button.pressed{
+  transform:scale(.88);background:var(--accent)!important;
+  color:#fff!important;border-color:var(--accent)!important;
+  box-shadow:0 0 12px var(--accent-glow);
+}
+.dpad button.stop{
+  background:rgba(239,68,68,.12);border-color:rgba(239,68,68,.25);
+  color:var(--red);font-size:13px;font-weight:700;
+}
+.dpad button.stop:hover{background:rgba(239,68,68,.2)}
+.dpad button.stop:active,.dpad button.stop.pressed{
+  background:var(--red)!important;border-color:var(--red)!important;
+  box-shadow:0 0 12px var(--red-glow)!important;
+}
+.dpad button.empty{visibility:hidden}
+
+/* ═══════════════════════════════════════════════════════════════
+   EMERGENCY STOP
+═══════════════════════════════════════════════════════════════ */
+.estop{
+  position:fixed;bottom:var(--sp-6);right:var(--sp-6);z-index:90;
+  width:62px;height:62px;border-radius:50%;border:3px solid #b91c1c;
+  background:radial-gradient(circle at 40% 35%,#f87171,#dc2626 50%,#991b1b);
+  color:#fff;font-size:10px;font-weight:800;letter-spacing:.4px;line-height:1.2;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;text-align:center;
+  box-shadow:0 4px 20px rgba(220,38,38,.4),inset 0 -3px 6px rgba(0,0,0,.3),inset 0 2px 4px rgba(255,255,255,.15);
+  transition:transform .1s,box-shadow .1s;text-transform:uppercase;
+  -webkit-tap-highlight-color:transparent;user-select:none;
+}
+.estop:hover{
+  transform:scale(1.07);
+  box-shadow:0 6px 28px rgba(220,38,38,.6),inset 0 -3px 6px rgba(0,0,0,.3),inset 0 2px 4px rgba(255,255,255,.15);
+}
+.estop:active{
+  transform:scale(.91);
+  box-shadow:0 2px 10px rgba(220,38,38,.5),inset 0 3px 8px rgba(0,0,0,.4);
+}
+.estop-ring{
+  position:absolute;inset:-6px;border-radius:50%;
+  border:2px solid rgba(220,38,38,.25);
+  animation:estopRing 2.5s ease-out infinite;
+}
+@keyframes estopRing{0%{transform:scale(1);opacity:.6}100%{transform:scale(1.3);opacity:0}}
+
+/* ── TTS Toggle ── */
+.btn-icon.tts-muted{color:var(--red);border-color:rgba(239,68,68,.25)}
+.btn-icon.tts-muted:hover{background:var(--red-subtle)}
+
+/* ═══════════════════════════════════════════════════════════════
+   CONSOLE LOG
+═══════════════════════════════════════════════════════════════ */
+.console-toggle{
+  position:fixed;bottom:var(--sp-6);left:var(--sp-6);z-index:85;
+  padding:7px 13px;border-radius:var(--r);border:1px solid var(--border2);
+  background:var(--surface);color:var(--text2);
+  font-size:var(--text-xs);font-weight:600;cursor:pointer;
+  display:flex;align-items:center;gap:6px;
+  transition:var(--transition);font-family:var(--font);
+  box-shadow:var(--shadow);letter-spacing:.3px;
+}
+.console-toggle:hover{background:var(--bg4);border-color:var(--accent);color:var(--accent2)}
+.console-count{
+  background:var(--accent);color:#fff;
+  font-size:var(--text-2xs);padding:1px 5px;border-radius:var(--r-pill);
+  min-width:16px;text-align:center;
+}
+.console-panel{
+  position:fixed;bottom:0;left:0;right:0;z-index:180;
+  height:0;max-height:45vh;background:var(--bg2);
+  border-top:1px solid var(--border2);
+  transition:height .3s var(--ease);
+  overflow:hidden;display:flex;flex-direction:column;
+}
+.console-panel.show{height:35vh}
+.console-toolbar{
+  padding:7px var(--sp-4);
+  display:flex;align-items:center;justify-content:space-between;
+  border-bottom:1px solid var(--border);flex-shrink:0;
+}
+.console-toolbar h4{
+  font-size:var(--text-sm);color:var(--text2);
+  display:flex;align-items:center;gap:6px;
+}
+.console-actions{display:flex;gap:5px}
+.console-actions button{
+  padding:3px 10px;border-radius:6px;border:1px solid var(--border);
+  background:transparent;color:var(--text3);
+  font-size:var(--text-xs);cursor:pointer;font-family:var(--font);
+  transition:var(--transition);
+}
+.console-actions button:hover{background:var(--bg3);color:var(--text)}
+.console-output{
+  flex:1;overflow-y:auto;padding:6px var(--sp-4);
+  font-family:var(--mono);font-size:var(--text-xs);
+  line-height:1.6;color:var(--text2);
+}
+.console-output::-webkit-scrollbar{width:3px}
+.console-output::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:3px}
+.console-line{
+  padding:1px 0;border-bottom:1px solid rgba(255,255,255,.02);
+  display:flex;gap:7px;word-break:break-all;
+}
+.c-time{color:var(--text3);flex-shrink:0;min-width:60px}
+.c-dir{font-weight:700;flex-shrink:0;min-width:14px}
+.c-dir.in{color:var(--green)}
+.c-dir.out{color:var(--blue)}
+.c-dir.evt{color:var(--amber)}
+.c-dir.err{color:var(--red)}
+.c-body{color:var(--text2)}
+.c-key{color:var(--accent2)}
+.c-str{color:var(--green)}
+.c-num{color:var(--amber)}
+
+/* ═══════════════════════════════════════════════════════════════
+   VOICE VISUALIZER
+═══════════════════════════════════════════════════════════════ */
+.voice-visualizer{
+  position:fixed;bottom:0;left:0;right:0;z-index:75;
+  display:flex;align-items:flex-end;justify-content:center;gap:3px;
+  height:0;overflow:hidden;transition:height var(--t-slow) var(--ease);
+  pointer-events:none;padding-bottom:96px;
+}
+.voice-visualizer.active{height:160px}
+.vbar{
+  width:3px;border-radius:3px 3px 0 0;
+  background:linear-gradient(180deg,var(--accent),var(--accent2));
+  opacity:.55;transition:height .08s var(--ease);min-height:3px;
+}
+.voice-visualizer.speaking .vbar{
+  background:linear-gradient(180deg,var(--green),var(--blue));
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   EXPANDED MAP OVERLAY
+═══════════════════════════════════════════════════════════════ */
+.map-expanded{
+  position:fixed;inset:var(--sp-5);z-index:300;
+  background:var(--bg);border-radius:var(--r-md);border:1px solid var(--border);
+  box-shadow:0 20px 60px rgba(0,0,0,.6);overflow:hidden;display:none;
+}
+.map-expanded.show{display:flex;flex-direction:column}
+.map-expanded .map-header{
+  padding:var(--sp-3) var(--sp-4);
+  display:flex;align-items:center;justify-content:space-between;
+  border-bottom:1px solid var(--border);
+}
+.map-expanded .map-header h3{margin:0;font-size:var(--text-md);color:var(--text)}
+.map-close{background:none;border:none;color:var(--text2);font-size:18px;cursor:pointer;padding:4px}
+.map-canvas-wrap{flex:1;position:relative;overflow:hidden}
+.map-expanded canvas{position:absolute;inset:0;width:100%;height:100%}
+.map-toolbar{display:flex;gap:5px;align-items:center}
+.map-toolbar button{
+  padding:4px 10px;border-radius:var(--r-sm);border:1px solid var(--border2);
+  background:var(--surface);color:var(--text2);font-size:var(--text-xs);cursor:pointer;
+  font-family:var(--font);transition:var(--transition);
+}
+.map-toolbar button:hover{background:var(--border)}
+.map-toolbar button.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.relocalize-hint{
+  position:absolute;top:var(--sp-2);left:50%;transform:translateX(-50%);
+  background:rgba(124,92,255,.9);color:#fff;padding:5px 13px;
+  border-radius:var(--r-sm);font-size:var(--text-xs);pointer-events:none;z-index:5;display:none;
+}
+.relocalize-hint.show{display:block}
+
+/* Annotation modal */
+.annotation-modal{
+  display:none;position:fixed;inset:0;z-index:1000;
+  background:rgba(0,0,0,.6);align-items:center;justify-content:center;
+}
+.annotation-modal.show{display:flex}
+.annotation-modal-content{
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--r-md);
+  padding:var(--sp-4);width:320px;max-width:90vw;
+}
+.annotation-modal-content h4{margin:0 0 var(--sp-3) 0;color:var(--text);font-size:var(--text-md)}
+.annotation-modal-content input,
+.annotation-modal-content textarea,
+.annotation-modal-content select{
+  width:100%;padding:6px 8px;margin-bottom:8px;border:1px solid var(--border2);
+  border-radius:var(--r-sm);background:var(--bg);color:var(--text);
+  font-family:var(--font);font-size:var(--text-xs);box-sizing:border-box;
+}
+.annotation-modal-content input[type="color"]{height:32px;padding:2px;cursor:pointer}
+.ann-btn-row{display:flex;gap:8px;margin-top:var(--sp-2)}
+.ann-btn-row button{
+  padding:6px 12px;border-radius:var(--r-sm);border:1px solid var(--border2);
+  background:var(--surface);color:var(--text2);font-size:var(--text-xs);cursor:pointer;
+  font-family:var(--font);transition:var(--transition);
+}
+.ann-btn-row button.primary{flex:1;background:var(--accent);color:#fff;border-color:var(--accent)}
+.ann-btn-row button.danger{background:#ef4444;color:#fff;border-color:#ef4444}
+
+/* ═══════════════════════════════════════════════════════════════
+   LEGACY — Hidden legacy elements
+═══════════════════════════════════════════════════════════════ */
+.camera-mini{display:none !important}
+.telemetry-overlay{display:none !important}
+.telemetry-panel{display:none !important}
+
+/* ═══════════════════════════════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════════════════════════════ */
+@media(max-width:1200px){
+  .main{grid-template-columns:260px 1fr 360px}
+}
+@media(max-width:1000px){
+  .main{grid-template-columns:230px 1fr 320px}
+}
+@media(max-width:820px){
+  .main{
+    grid-template-columns:1fr;
+    grid-template-rows:auto 1fr auto;
+  }
+  .panel-left{
+    grid-row:auto;flex-direction:row;
+    border-right:none;border-bottom:1px solid var(--border);
+    max-height:180px;overflow-x:auto;
+  }
+  .map-section{min-width:180px;flex-shrink:0}
+  .telem-section{flex-direction:row;overflow-x:auto;flex-wrap:nowrap;padding-bottom:var(--sp-3)}
+  .telem-compact{min-width:140px;flex-shrink:0}
+  .panel-center{border-right:none;border-bottom:1px solid var(--border);max-height:260px}
+  .panel-right{grid-row:auto}
+}
+@media(max-width:600px){
+  .header{padding:0 var(--sp-3)}
+  .logo-sub{display:none}
+  .header-right{gap:var(--sp-1)}
+  .status-dot{padding:3px 7px}
+  .chat-container{padding:0 var(--sp-3)}
+  .input-area{padding:var(--sp-1) var(--sp-3) var(--sp-3);padding-right:80px}
+  .chips{gap:4px}
+  .chip{padding:5px 10px;font-size:var(--text-2xs)}
+  .dpad-overlay{bottom:88px;left:var(--sp-2)}
+  .memory-panel{width:310px}
+  .estop{width:54px;height:54px;font-size:9px;bottom:var(--sp-4);right:var(--sp-4)}
+  .console-toggle{padding:6px 10px;font-size:var(--text-2xs);bottom:var(--sp-4);left:var(--sp-3)}
+}
+@media(min-width:601px) and (max-width:1200px){
+  .input-area{padding-right:90px}
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   UTILITIES
+═══════════════════════════════════════════════════════════════ */
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+
+<!-- ═══════════ HEADER ═══════════ -->
+<header class="header">
+  <div class="logo">
+    <div class="logo-icon"><img src="/vlm/image/Kmutnb_logo.jpg" alt="KMUTNB"/></div>
+    <div>
+      <div class="logo-text">VORA</div>
+      <div class="logo-sub">Voice Oriented Robotics Assistant</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="status-dot" id="st-server" title="Server (A6000)"><span>Server</span></div>
+    <div class="status-dot" id="st-camera" title="Camera Feed"><span>Camera</span></div>
+    <div class="status-dot" id="st-gw" title="Gateway (Robot)"><span>Gateway</span></div>
+    <button class="btn-icon" id="btn-tts-toggle" title="Toggle TTS / เสียงตอบกลับ" aria-label="Toggle TTS">🔊</button>
+    <button class="btn-icon" id="btn-memory" title="Object Memory / ความจำ" aria-label="Object Memory">🧠</button>
+    <button class="btn-icon" id="btn-dpad" title="Manual D-Pad Control" aria-label="D-Pad">🎮</button>
+    <button class="btn-icon" id="btn-settings" title="Settings" aria-label="Settings">⚙️</button>
+  </div>
+</header>
+
+<!-- ═══════════ STATE BAR ═══════════ -->
+<div class="state-bar" id="state-bar" data-state="idle">
+  <span class="state-icon" id="state-icon">●</span>
+  <span class="state-text" id="state-text">Idle — พร้อมรับคำสั่ง</span>
+  <span class="state-ping" id="state-ping">
+    <span class="ping-dot" id="ping-dot"></span>
+    <span id="ping-text">-- ms</span>
+  </span>
+</div>
+
+<!-- ═══════════ MAIN DASHBOARD ═══════════ -->
+<div class="main">
+
+  <!-- ═══ LEFT: Map + Telemetry ═══ -->
+  <div class="panel-left">
+    <div class="map-section">
+      <h3>🗺 SLAM Map</h3>
+      <div class="map-live" id="telem-map" onclick="toggleExpandedMap()" title="Click to expand">
+        <canvas id="map-canvas" width="400" height="400"></canvas>
+        <span class="map-label" id="map-label">Loading map...</span>
+        <span class="map-pos-label" id="map-pos-label">X:0.00 Y:0.00</span>
+      </div>
+    </div>
+    <div class="telem-section">
+      <div class="telem-compact">
+        <h4>📍 Position</h4>
+        <div class="telem-row">
+          <span class="telem-label">X</span>
+          <span class="telem-value" id="telem-pos-x">0.00 m</span>
+        </div>
+        <div class="telem-row">
+          <span class="telem-label">Y</span>
+          <span class="telem-value" id="telem-pos-y">0.00 m</span>
+        </div>
+        <div class="telem-row">
+          <span class="telem-label">θ</span>
+          <span class="telem-value" id="telem-pos-th">0.0°</span>
+        </div>
+        <div class="telem-row">
+          <span class="telem-label">Source</span>
+          <span class="telem-value" id="telem-pos-src" style="font-size:9px">--</span>
+        </div>
+      </div>
+      <div class="telem-compact">
+        <h4>🌐 Network</h4>
+        <div class="telem-row">
+          <span class="telem-label">Server</span>
+          <span class="telem-value" id="telem-server-ping">-- ms</span>
+        </div>
+        <div class="telem-row">
+          <span class="telem-label">Gateway</span>
+          <span class="telem-value" id="telem-gw-ping">-- ms</span>
+        </div>
+        <div class="telem-row">
+          <span class="telem-label">Camera</span>
+          <span class="telem-value" id="telem-fps">--</span>
+        </div>
+        <div class="telem-row">
+          <span class="telem-label">Frame</span>
+          <span class="telem-value" id="telem-frame-size">-- KB</span>
+        </div>
+      </div>
+      <div class="telem-compact">
+        <h4>🤖 System</h4>
+        <div class="telem-row">
+          <span class="telem-label">Model</span>
+          <span class="telem-value" id="telem-model">--</span>
+        </div>
+        <div class="telem-row">
+          <span class="telem-label">GPU</span>
+          <span class="telem-value" id="telem-gpu">--</span>
+        </div>
+        <div class="telem-row">
+          <span class="telem-label">Uptime</span>
+          <span class="telem-value" id="telem-uptime">--</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ CENTER: Camera + Controls ═══ -->
+  <div class="panel-center">
+    <div class="camera-main" id="camera-main">
+      <div class="cam-label">● LIVE</div>
+      <img id="cam-center-img" src="" alt="Camera Feed" style="display:none"/>
+      <!-- Bounding box overlay (for search mode) -->
+      <div class="cam-bbox-overlay" id="cam-center-bbox"></div>
+      <div class="camera-no-feed" id="cam-no-feed">
+        <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+          <circle cx="12" cy="13" r="4"/>
+        </svg>
+        <span>Waiting for camera...</span>
+        <small>ตรวจสอบการเชื่อมต่อ Server</small>
+      </div>
+      <div class="cam-actions-bar">
+        <button onclick="captureFrame()">📸 Capture</button>
+        <button onclick="sendCmd('อธิบายภาพ')">🧠 Describe</button>
+        <button onclick="openCameraFull()">⛶ Fullscreen</button>
+      </div>
+    </div>
+
+    <!-- Control Strip: grouped Search | Navigate | Stop -->
+    <div class="control-strip">
+      <div class="ctrl-group">
+        <button class="ctrl-btn search-btn" data-cmd="หาปากกา" title="ค้นหาปากกา" aria-label="หาปากกา">🔍 ปากกา</button>
+        <button class="ctrl-btn search-btn" data-cmd="หาดินสอ" title="ค้นหาดินสอ" aria-label="หาดินสอ">🔍 ดินสอ</button>
+      </div>
+      <div class="ctrl-sep" aria-hidden="true"></div>
+      <div class="ctrl-group">
+        <button class="ctrl-btn nav-btn" data-cmd="ไปข้างหน้า" title="เดินหน้า" aria-label="เดินหน้า">↑</button>
+        <button class="ctrl-btn nav-btn" data-cmd="ถอยหลัง" title="ถอยหลัง" aria-label="ถอยหลัง">↓</button>
+        <button class="ctrl-btn nav-btn" data-cmd="เลี้ยวซ้าย" title="เลี้ยวซ้าย" aria-label="เลี้ยวซ้าย">←</button>
+        <button class="ctrl-btn nav-btn" data-cmd="เลี้ยวขวา" title="เลี้ยวขวา" aria-label="เลี้ยวขวา">→</button>
+      </div>
+      <div class="ctrl-sep" aria-hidden="true"></div>
+      <button class="ctrl-btn danger" data-cmd="หยุด" title="หยุด Emergency" aria-label="หยุด">🛑 หยุด</button>
+    </div>
+  </div>
+
+  <!-- ═══ RIGHT: Chat + Input ═══ -->
+  <div class="panel-right">
+    <div class="chat-header">
+      <h3>💬 Command Log</h3>
+      <span class="chat-header-badge" id="chat-header-badge">VORA</span>
+    </div>
+
+    <!-- Legacy camera mini — hidden, JS compat -->
+    <div class="camera-mini hidden" id="camera-mini">
+      <img id="cam-mini-img" src="" alt="Camera"/>
+      <div class="cam-bbox-overlay" id="cam-mini-bbox"></div>
+      <div class="cam-label">● LIVE</div>
+      <div class="cam-expand">⛶</div>
+    </div>
+
+    <div class="chat-area" id="chat-area">
+      <div class="chat-container" id="chat-container">
+        <div class="welcome" id="welcome-screen">
+          <div class="welcome-icon"><img src="/vlm/image/Kmutnb_logo.jpg" alt="KMUTNB"/></div>
+          <h2>VORA</h2>
+          <p>Voice Oriented Robotics Assistant<br/>พร้อมรับคำสั่ง</p>
+          <div class="welcome-hint">
+            <span onclick="sendCmd('อธิบายภาพ')">🧠 อธิบายภาพที่เห็น</span>
+            <span onclick="sendCmd('หาปากกา')">🔍 หาปากกา</span>
+            <span onclick="sendCmd('สถานะหุ่นยนต์')">📊 สถานะหุ่นยนต์</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="input-area">
+      <div class="chips">
+        <button class="chip" data-cmd="อธิบายภาพ" aria-label="อธิบายภาพ">🧠 อธิบาย</button>
+        <button class="chip" data-cmd="หาปากกา" aria-label="หาปากกา">🔍 ปากกา</button>
+        <button class="chip" data-cmd="หาดินสอ" aria-label="หาดินสอ">🔍 ดินสอ</button>
+        <button class="chip" data-cmd="ไปข้างหน้า" aria-label="เดินหน้า">↑ เดินหน้า</button>
+        <button class="chip danger" data-cmd="หยุด" aria-label="หยุด">🛑 หยุด</button>
+      </div>
+      <div class="transcript-bar" id="transcript-bar"></div>
+      <div class="input-box" id="input-box">
+        <textarea id="text-input" rows="1" placeholder="พูดหรือพิมพ์คำสั่ง..." autocomplete="off" aria-label="พิมพ์คำสั่ง"></textarea>
+        <button class="input-btn send" id="btn-send" title="Send (Enter)" aria-label="Send">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        </button>
+        <button class="input-btn mic" id="btn-mic" title="Voice Input (Thai)" aria-label="Microphone">
+          <span class="mic-glow-ring"></span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /.main -->
+
+<!-- ═══════════ CAMERA FULLSCREEN ═══════════ -->
+<div class="camera-full" id="camera-full" role="dialog" aria-label="Camera Fullscreen">
+  <button class="cam-close" onclick="closeCameraFull()" aria-label="Close fullscreen">✕</button>
+  <img id="cam-full-img" src="" alt="Camera Feed"/>
+  <div class="cam-actions">
+    <button onclick="captureFrame()">📸 Capture</button>
+    <button onclick="sendCmd('อธิบายภาพ')">🧠 VLM Describe</button>
+    <button onclick="closeCameraFull()">✕ Close</button>
+  </div>
+</div>
+
+<!-- ═══════════ SETTINGS ═══════════ -->
+<div class="settings-overlay" id="settings-overlay" role="dialog" aria-label="Settings">
+  <div class="settings-panel">
+    <div class="settings-panel-header">
+      <h3>⚙️ Settings</h3>
+      <button class="btn-icon" onclick="closeSettings()" aria-label="Close settings">✕</button>
+    </div>
+    <div class="settings-panel-body">
+      <div class="settings-section">
+        <div class="settings-section-label">Connection</div>
+        <div class="settings-group">
+          <label for="set-gw-url">Gateway URL (Robot Controller)</label>
+          <input type="text" id="set-gw-url" placeholder="http://192.168.0.60:9001" autocomplete="off"/>
+        </div>
+      </div>
+      <div class="settings-section">
+        <div class="settings-section-label">Voice Input</div>
+        <div class="settings-group">
+          <label for="set-mic">Microphone</label>
+          <select id="set-mic"></select>
+        </div>
+        <div class="settings-group">
+          <label for="set-auto-send">Voice Auto-Send</label>
+          <select id="set-auto-send">
+            <option value="1">On — ประมวลผลคำสั่งเสียงอัตโนมัติ</option>
+            <option value="0">Off — แสดงเฉพาะ Transcript</option>
+          </select>
+        </div>
+        <div class="settings-group">
+          <label for="set-silence">Silence Timeout</label>
+          <select id="set-silence">
+            <option value="1000">1.0 sec</option>
+            <option value="1500" selected>1.5 sec</option>
+            <option value="2000">2.0 sec</option>
+            <option value="3000">3.0 sec</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="settings-actions">
+      <button class="btn-cancel" onclick="closeSettings()">Cancel</button>
+      <button class="btn-save" onclick="saveSettings()">Save Settings</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ MEMORY SIDEBAR ═══════════ -->
+<div class="memory-overlay" id="memory-overlay"></div>
+<div class="memory-panel" id="memory-panel" role="complementary" aria-label="Object Memory">
+  <div class="memory-header">
+    <h3>🧠 Object Memory</h3>
+    <div class="memory-header-actions">
+      <button class="btn-icon" onclick="loadMemory()" title="Refresh" aria-label="Refresh memory">🔄</button>
+      <button class="btn-icon" onclick="clearAllMemory()" title="Clear all" aria-label="Clear memory" style="color:var(--red)">🗑️</button>
+      <button class="btn-icon" onclick="closeMemory()" aria-label="Close memory panel">✕</button>
+    </div>
+  </div>
+  <div class="memory-list" id="memory-list">
+    <div class="memory-empty">
+      <div class="memory-empty-icon">🧠</div>
+      <div class="memory-empty-title">ยังไม่มีข้อมูลที่จำได้</div>
+      <div class="memory-empty-sub">เมื่อหุ่นยนต์เจอสิ่งของ จะจำตำแหน่งไว้ให้อัตโนมัติ</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ D-PAD ═══════════ -->
+<div class="dpad-overlay" id="dpad-overlay" aria-label="D-Pad Control">
+  <div class="dpad" role="group">
+    <button class="empty" aria-hidden="true"></button>
+    <button data-dpad-cmd="ไปข้างหน้า" aria-label="Forward">↑</button>
+    <button class="empty" aria-hidden="true"></button>
+    <button data-dpad-cmd="เลี้ยวซ้าย" aria-label="Turn Left">←</button>
+    <button class="stop" data-dpad-cmd="หยุด" aria-label="Stop">⏹</button>
+    <button data-dpad-cmd="เลี้ยวขวา" aria-label="Turn Right">→</button>
+    <button class="empty" aria-hidden="true"></button>
+    <button data-dpad-cmd="ถอยหลัง" aria-label="Reverse">↓</button>
+    <button class="empty" aria-hidden="true"></button>
+  </div>
+</div>
+
+<!-- ═══════════ EMERGENCY STOP ═══════════ -->
+<button class="estop" id="btn-estop" title="Emergency Stop — หยุดฉุกเฉิน" aria-label="Emergency Stop">
+  <span class="estop-ring" aria-hidden="true"></span>
+  E-STOP
+</button>
+
+<!-- ═══════════ EXPANDED MAP ═══════════ -->
+<div class="map-expanded" id="map-expanded" role="dialog" aria-label="Expanded SLAM Map">
+  <div class="map-header">
+    <h3>🗺 SLAM Map — Real-time</h3>
+    <div class="map-toolbar">
+      <button id="btn-set-pose" onclick="toggleSetPoseMode()" title="Click map to set robot pose">📍 Set Pose</button>
+      <button onclick="resetPoseOrigin()" title="Reset pose to origin">🔄 Reset</button>
+      <button id="btn-add-zone" onclick="toggleAnnotationMode('zone')" title="Click map to add semantic zone">🔵 Zone</button>
+      <button id="btn-add-landmark" onclick="toggleAnnotationMode('landmark')" title="Click map to add landmark">📌 Landmark</button>
+    </div>
+    <button class="map-close" onclick="toggleExpandedMap()" aria-label="Close map">✕</button>
+  </div>
+  <div class="map-canvas-wrap">
+    <canvas id="map-canvas-big" width="800" height="800"></canvas>
+    <div class="relocalize-hint" id="relocalize-hint">🖱️ Click on map to set robot position</div>
+  </div>
+</div>
+
+<!-- Annotation Modal -->
+<div class="annotation-modal" id="annotation-modal">
+  <div class="annotation-modal-content">
+    <h4 id="ann-title">Add Zone</h4>
+    <p id="ann-source-badge" style="display:none;margin:0 0 8px 0;font-size:11px;color:var(--text-muted)"></p>
+    <form id="ann-form" onsubmit="saveAnnotation(event)">
+      <input id="ann-id" placeholder="ID (e.g. kitchen)" required />
+      <input id="ann-label-th" placeholder="Thai label" />
+      <input id="ann-label-en" placeholder="English label" />
+      <div id="ann-zone-fields">
+        <input id="ann-radius" type="number" step="0.1" value="0.8" min="0.1" placeholder="Radius (m)" />
+        <input id="ann-color" type="color" value="#3b82f6" />
+        <textarea id="ann-expected" placeholder="Expected objects (comma-sep)" rows="2"></textarea>
+      </div>
+      <div id="ann-lm-fields" style="display:none">
+        <select id="ann-zone-link"><option value="">No zone</option></select>
+        <input id="ann-category" placeholder="Category (furniture, door...)" />
+      </div>
+      <textarea id="ann-notes" placeholder="Notes" rows="2"></textarea>
+      <div class="ann-btn-row">
+        <button type="button" onclick="closeAnnotationModal()">Cancel</button>
+        <button type="button" class="danger" onclick="deleteAnnotation()" id="ann-delete-btn" style="display:none">Delete</button>
+        <button type="submit" class="primary">Save</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ═══════════ CONSOLE ═══════════ -->
+<button class="console-toggle" id="btn-console" aria-label="Toggle debug console">
+  🖥️ Terminal
+  <span class="console-count" id="console-count">0</span>
+</button>
+<div class="console-panel" id="console-panel" role="log" aria-label="Debug Console">
+  <div class="console-toolbar">
+    <h4>🖥️ Debug Console</h4>
+    <div class="console-actions">
+      <button onclick="clearConsole()">Clear</button>
+      <button onclick="toggleConsole()">Close</button>
+    </div>
+  </div>
+  <div class="console-output" id="console-output"></div>
+</div>
+
+<!-- ═══════════ VOICE VISUALIZER ═══════════ -->
+<div class="voice-visualizer" id="voice-visualizer" aria-hidden="true"></div>
+
+<!-- ═══════════ TTS AUDIO ═══════════ -->
+<audio id="tts-audio" preload="none"></audio>
+
+<script>
+/* ================================================================
+   VORA Frontend — Voice Oriented Robotics Assistant
+   ================================================================
+   Server  (A6000 :8080): Camera frames, VLM analysis, STT base
+   Gateway (LAN   :9001): Robot commands, audio proxy, dashboard
+                          events, object memory, visual search
+   ================================================================ */
+
+// ── Config ──────────────────────────────────────────────────
+const hostname = window.location.hostname;
+const isSecure = location.protocol === 'https:';
+const isTailscale = hostname.endsWith('.ts.net');
+
+let SERVER_BASE, SERVER_WS;
+if (isTailscale) {
+  SERVER_BASE = `https://${hostname}`;
+  SERVER_WS = `wss://${hostname}`;
+} else {
+  const port = location.port || '8080';
+  SERVER_BASE = `${location.protocol}//${hostname}:${port}`;
+  SERVER_WS = `${isSecure ? 'wss' : 'ws'}://${hostname}:${port}`;
+}
+
+// Gateway is typically on LAN — configurable via settings
+let GW_BASE = localStorage.getItem('vora_gw_url') || 'http://192.168.0.60:9001';
+let GW_WS   = GW_BASE.replace(/^http/, 'ws');
+
+let AUTO_SEND       = localStorage.getItem('vora_auto_send') !== '0';
+let SILENCE_TIMEOUT = parseInt(localStorage.getItem('vora_silence') || '1500');
+let MIC_DEVICE_ID   = localStorage.getItem('vora_mic') || '';
+
+console.log(`🌐 Server: ${SERVER_BASE}`);
+console.log(`🔌 Gateway: ${GW_BASE}`);
+
+// ── DOM Refs ────────────────────────────────────────────────
+const $ = id => document.getElementById(id);
+const chatArea      = $('chat-area');
+const chatContainer = $('chat-container');
+const welcomeScreen = $('welcome-screen');
+const textInput     = $('text-input');
+const btnMic        = $('btn-mic');
+const btnSend       = $('btn-send');
+const transcriptBar = $('transcript-bar');
+const ttsAudio      = $('tts-audio');
+const camMini       = $('camera-mini');
+const camMiniImg    = $('cam-mini-img');
+const camCenterImg  = $('cam-center-img');
+const camFullImg    = $('cam-full-img');
+const camNoFeed     = $('cam-no-feed');
+
+// ── State ───────────────────────────────────────────────────
+let audioWs      = null;
+let dashWs       = null;
+let isRecording  = false;
+let audioCtx, mediaStream, processor;
+let sampleRate   = 16000;
+let chatStarted  = false;
+let cameraLive   = false;
+let gwAvailable  = false;
+let ttsMuted     = localStorage.getItem('vora_tts_muted') === '1';
+let robotState   = 'idle';
+let _searchPollTimer = null;
+let _lastSearchStatus = null;
+let consoleOpen  = false;
+let consoleMsgs  = 0;
+let serverPingMs = null;
+let gwPingMs     = null;
+let cameraFps    = 0;
+let frameCount   = 0;
+let lastFpsTime  = Date.now();
+let robotPos     = { x: 0, y: 0, th: 0 };
+let trailPoints  = [];
+let startTime    = Date.now();
+let _lastFrameBytes = 0;
+
+// ── Auto-resize textarea ────────────────────────────────────
+textInput.addEventListener('input', () => {
+  textInput.style.height = 'auto';
+  textInput.style.height = Math.min(textInput.scrollHeight, 120) + 'px';
+  btnSend.classList.toggle('has-text', textInput.value.trim().length > 0);
+});
+textInput.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); submitText(); }
+});
+
+// ═══════════════════════════════════════════════════════════
+//  INITIALIZATION
+// ═══════════════════════════════════════════════════════════
+async function init() {
+  console.log('🚀 VORA Init...');
+  checkServer();
+  checkGateway();
+  connectDashboard();
+  startCamera();
+  enumerateMics();
+  setupChips();
+  setupControlStrip();
+  setupHeaderButtons();
+  setupDpad();
+  setupEstop();
+  setupConsole();
+  loadSettings();
+  applyTTSMute();
+  setRobotState('idle');
+  startPingLoop();
+  startTelemetryLoop();
+}
+
+function setupChips() {
+  document.querySelectorAll('.chip').forEach(chip => {
+    chip.onclick = () => sendCmd(chip.dataset.cmd);
+  });
+}
+
+function setupControlStrip() {
+  document.querySelectorAll('.ctrl-btn[data-cmd]').forEach(btn => {
+    btn.onclick = () => sendCmd(btn.dataset.cmd);
+  });
+}
+
+function setupHeaderButtons() {
+  $('btn-settings').onclick = openSettings;
+  $('btn-memory').onclick = openMemory;
+  $('btn-tts-toggle').onclick = toggleTTSMute;
+  $('memory-overlay').onclick = closeMemory;
+  if ($('telemetry-overlay')) $('telemetry-overlay').onclick = closeTelemetry;
+  camMini.onclick = openCameraFull;
+  if (camCenterImg) camCenterImg.onclick = openCameraFull;
+}
+
+// ═══════════════════════════════════════════════════════════
+//  HEALTH CHECKS
+// ═══════════════════════════════════════════════════════════
+async function checkServer() {
+  try {
+    const r = await fetch(`${SERVER_BASE}/health`, {signal: AbortSignal.timeout(5000)});
+    if (r.ok) { setStatus('st-server', true); return true; }
+  } catch(e) {}
+  setStatus('st-server', false);
+  return false;
+}
+
+async function checkGateway() {
+  try {
+    const r = await fetch(`${GW_BASE}/health`, {signal: AbortSignal.timeout(5000)});
+    if (r.ok) { setStatus('st-gw', true); gwAvailable = true; return true; }
+  } catch(e) {}
+  setStatus('st-gw', false);
+  gwAvailable = false;
+  return false;
+}
+
+function setStatus(id, on) {
+  $(id).classList.toggle('on', on);
+}
+
+// ═══════════════════════════════════════════════════════════
+//  CHAT MESSAGES
+// ═══════════════════════════════════════════════════════════
+function ensureChatStarted() {
+  if (!chatStarted) {
+    welcomeScreen.style.display = 'none';
+    chatStarted = true;
+  }
+}
+
+// ── Lightweight Markdown → HTML ──
+function renderMarkdown(text) {
+  if (!text) return '';
+  if (/<[a-z][\s\S]*>/i.test(text) && !text.includes('**')) return text;
+  let s = text;
+  s = s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  s = s.replace(/```(\w*)\n([\s\S]*?)```/g, (_, lang, code) => `<pre><code>${code.trim()}</code></pre>`);
+  s = s.replace(/`([^`]+)`/g, '<code>$1</code>');
+  s = s.replace(/^### (.+)$/gm, '<h3>$1</h3>');
+  s = s.replace(/^## (.+)$/gm, '<h2>$1</h2>');
+  s = s.replace(/^# (.+)$/gm, '<h1>$1</h1>');
+  s = s.replace(/\*\*\*(.+?)\*\*\*/g, '<strong><em>$1</em></strong>');
+  s = s.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  s = s.replace(/(?<![\w*])\*([^*]+?)\*(?![\w*])/g, '<em>$1</em>');
+  s = s.replace(/^&gt; (.+)$/gm, '<blockquote>$1</blockquote>');
+  s = s.replace(/^---$/gm, '<hr>');
+  s = s.replace(/^[\-\*] (.+)$/gm, '<li>$1</li>');
+  s = s.replace(/(<li>.*<\/li>\n?)+/g, m => `<ul>${m}</ul>`);
+  s = s.replace(/^\d+\. (.+)$/gm, '<li>$1</li>');
+  s = s.replace(/\n\n+/g, '</p><p>');
+  s = s.replace(/\n/g, '<br>');
+  if (!/^<(h[1-3]|ul|ol|pre|blockquote|hr|p)/.test(s)) {
+    s = `<p>${s}</p>`;
+  }
+  s = s.replace(/<p><\/p>/g, '');
+  return s;
+}
+
+function addMsg(role, html) {
+  ensureChatStarted();
+  const time = new Date().toLocaleTimeString('th-TH', {hour:'2-digit', minute:'2-digit'});
+
+  if (role === 'system') {
+    const el = document.createElement('div');
+    el.className = 'msg-system';
+    el.innerHTML = `<span>${html}</span>`;
+    chatContainer.appendChild(el);
+  } else {
+    const el = document.createElement('div');
+    el.className = `msg-group ${role}`;
+    const avatar = role === 'vora' ? '🤖' : '👤';
+    const rendered = role === 'vora' ? renderMarkdown(html) : html;
+    el.innerHTML = `
+      <div class="msg-avatar">${avatar}</div>
+      <div class="msg-content">
+        <div class="msg-bubble">${rendered}</div>
+        <div class="msg-meta"><span class="msg-time">${time}</span></div>
+      </div>`;
+    chatContainer.appendChild(el);
+  }
+  scrollChat();
+}
+
+function scrollChat() {
+  requestAnimationFrame(() => chatArea.scrollTop = chatArea.scrollHeight);
+}
+
+// Skeleton thinking indicator
+function showThinkingSkeleton() {
+  ensureChatStarted();
+  const el = document.createElement('div');
+  el.className = 'msg-group vora';
+  el.id = 'thinking-skeleton';
+  el.innerHTML = `
+    <div class="msg-avatar">🤖</div>
+    <div class="msg-content">
+      <div class="msg-bubble" style="min-width:200px">
+        <div class="skeleton-line"></div>
+        <div class="skeleton-line"></div>
+        <div class="skeleton-line"></div>
+      </div>
+    </div>`;
+  chatContainer.appendChild(el);
+  scrollChat();
+  return el;
+}
+
+function removeThinkingSkeleton() {
+  const el = $('thinking-skeleton');
+  if (el) el.remove();
+}
+
+// ═══════════════════════════════════════════════════════════
+//  SEARCH PROGRESS CARDS
+// ═══════════════════════════════════════════════════════════
+function showSearchCard(target) {
+  ensureChatStarted();
+  const prev = $('active-search');
+  if (prev) prev.remove();
+
+  const el = document.createElement('div');
+  el.className = 'search-card';
+  el.id = 'active-search';
+  el.innerHTML = `
+    <div class="search-header">
+      <span class="search-icon">🔍</span>
+      <span class="search-title">กำลังค้นหา: ${target}</span>
+    </div>
+    <div class="search-status" id="search-status-text">เริ่มค้นหา...</div>
+    <div class="search-progress"><div class="search-progress-bar" id="search-progress-bar"></div></div>
+    <button class="search-cancel" onclick="cancelSearch()">ยกเลิกการค้นหา</button>`;
+  chatContainer.appendChild(el);
+  scrollChat();
+}
+
+function updateSearchProgress(step, total, status) {
+  const bar = $('search-progress-bar');
+  const text = $('search-status-text');
+  if (bar) bar.style.width = `${Math.min((step/total)*100, 100)}%`;
+  if (text) text.textContent = status;
+  scrollChat();
+}
+
+function removeSearchCard() {
+  const el = $('active-search');
+  if (el) el.remove();
+}
+
+function showFoundCard(target, imageUrl, description, robotX, robotY) {
+  removeSearchCard();
+  ensureChatStarted();
+  const el = document.createElement('div');
+  el.className = 'found-card';
+  const imgHtml = imageUrl ? `<img class="found-img" src="${imageUrl}" onerror="this.style.display='none'" alt="${target}"/>` : '';
+  const descHtml = description ? `<div class="found-text">${description}</div>` : '';
+  const hasCoords = (robotX !== undefined && robotY !== undefined && (robotX !== 0 || robotY !== 0));
+  const coordHtml = hasCoords
+    ? `<div class="found-coords">👁️ Seen from: X=${robotX.toFixed(2)}m, Y=${robotY.toFixed(2)}m
+         <div class="found-caveat" style="font-size:11px;opacity:0.65;">(observer pose — ตำแหน่งวัตถุจริงอาจไม่ตรงทั้งหมด)</div>
+       </div>`
+    : '';
+  el.innerHTML = `
+    <div class="found-header">✅ เห็นแล้ว: ${target}</div>
+    ${imgHtml}${descHtml}${coordHtml}`;
+  chatContainer.appendChild(el);
+  scrollChat();
+}
+
+function showNotFoundCard(target) {
+  removeSearchCard();
+  addMsg('vora', `❌ ไม่เจอ <strong>${target}</strong> ครับ ลองค้นหาใหม่ได้นะครับ`);
+}
+
+function showObstacleCard(data) {
+  ensureChatStarted();
+  const el = document.createElement('div');
+  el.className = 'obstacle-card';
+  const strategies = {
+    go_around_left: '← หลบซ้าย',
+    go_around_right: '→ หลบขวา',
+    wait: '⏸️ รอ', backup: '⬇️ ถอยหลัง',
+    reroute: '🗺️ เปลี่ยนเส้นทาง', stop: '🛑 หยุด'
+  };
+  el.innerHTML = `⚠️ <strong>เจอสิ่งกีดขวาง</strong> — ${data.obstacle_type || 'unknown'} → ${strategies[data.strategy] || data.strategy || 'avoiding'}`;
+  chatContainer.appendChild(el);
+  scrollChat();
+}
+
+async function cancelSearch() {
+  try {
+    await fetch(`${GW_BASE}/search/cancel`, {method: 'POST'});
+    removeSearchCard();
+    addMsg('system', '🔍 ยกเลิกการค้นหาแล้ว');
+  } catch(e) {
+    addMsg('system', '❌ ไม่สามารถยกเลิกได้');
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+//  SEND COMMANDS
+// ═══════════════════════════════════════════════════════════
+function submitText() {
+  const text = textInput.value.trim();
+  if (!text) return;
+  textInput.value = '';
+  textInput.style.height = 'auto';
+  btnSend.classList.remove('has-text');
+  sendCmd(text);
+}
+
+async function sendCmd(text) {
+  addMsg('user', text);
+  setRobotState('processing');
+  logConsole('out', `Command: "${text}"`);
+
+  const skeleton = showThinkingSkeleton();
+
+  // Try Gateway first (has full 3-level features)
+  if (gwAvailable) {
+    try {
+      const t0 = performance.now();
+      const r = await fetch(`${GW_BASE}/gw/text`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({text, lang: 'th'}),
+        signal: AbortSignal.timeout(10000)
+      });
+      const data = await r.json();
+      const rtt = Math.round(performance.now() - t0);
+      logConsole('in', `GW response (${rtt}ms): ${JSON.stringify(data).substring(0, 300)}`);
+      removeThinkingSkeleton();
+
+      if (data.ok) {
+        if (data.mode === 'motion') {
+          addMsgTypewriter('vora', formatMotion(data.motion));
+          setRobotState('executing');
+          setTimeout(() => setRobotState('idle'), (data.motion?.duration || 2) * 1000 + 500);
+        } else if (data.mode === 'multi_step') {
+          addMsgTypewriter('vora', `✅ ทำ ${data.steps} ขั้นตอนเสร็จแล้วครับ`);
+          setRobotState('executing');
+          setTimeout(() => setRobotState('idle'), 3000);
+        } else if (data.mode === 'visual_search') {
+          showSearchCard(data.target);
+          showChainOfThought(data.target);
+          addCotStep('🔍', `Analyzing intent: "${text}"`, 'done');
+          addCotStep('🎯', `Target identified: <strong>${data.target}</strong>`, 'done');
+          addCotStep('📷', 'Initializing camera scan...', 'active');
+          setRobotState('searching');
+          startSearchPolling();
+        } else if (data.mode === 'planner') {
+          addMsgTypewriter('vora', '✅ กำลังดำเนินการตามแผนครับ');
+          setRobotState('executing');
+        } else if (data.mode === 'chitchat') {
+          addMsgTypewriter('vora', data.reply || '🤖 ครับ');
+          setRobotState('idle');
+        } else {
+          addMsgTypewriter('vora', '✅ รับคำสั่งแล้วครับ');
+          setRobotState('idle');
+        }
+      } else {
+        // Gateway couldn't understand — try Server pipeline as fallback
+        try {
+          const r2 = await fetch(`${SERVER_BASE}/pipeline/command`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({text, session_id: 'webapp', lang: 'th'}),
+            signal: AbortSignal.timeout(30000)
+          });
+          const d2 = await r2.json();
+          if (d2.success && d2.response_text) {
+            addMsgTypewriter('vora', d2.response_text);
+          } else {
+            addMsgTypewriter('vora', `🤔 ไม่เข้าใจคำสั่ง "${text}" ลองพูดใหม่นะครับ`);
+          }
+        } catch(e2) {
+          addMsgTypewriter('vora', `🤔 ไม่เข้าใจคำสั่ง "${text}" ลองพูดใหม่นะครับ`);
+        }
+        setRobotState('idle');
+      }
+      return;
+    } catch(e) {
+      console.warn('Gateway command failed, trying Server:', e);
+      logConsole('err', `GW error: ${e.message}`);
+      removeThinkingSkeleton();
+    }
+  }
+
+  // Fallback to Server pipeline (works without Gateway)
+  try {
+    const t0 = performance.now();
+    const r = await fetch(`${SERVER_BASE}/pipeline/command`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({text, session_id: 'webapp', lang: 'th'}),
+      signal: AbortSignal.timeout(30000)
+    });
+    const data = await r.json();
+    const rtt = Math.round(performance.now() - t0);
+    logConsole('in', `Server pipeline (${rtt}ms): ${JSON.stringify(data).substring(0, 300)}`);
+    removeThinkingSkeleton();
+
+    if (data.success && data.response_text) {
+      const intent = data.intent || '';
+      if (intent === 'control' && data.commands && data.commands.length > 0) {
+        addMsgTypewriter('vora', data.response_text);
+        addMsg('system', `⚙️ คำสั่ง: ${data.commands.map(c => c.cmd).join(', ')} (Server-only — ไม่ส่งหุ่นยนต์)`);
+        setRobotState('idle');
+      } else if (intent === 'find_object' && data.target) {
+        addMsgTypewriter('vora', data.response_text);
+        addMsg('system', `🔍 ต้องการหา: ${data.target} (ต้องเชื่อมต่อ Gateway เพื่อค้นหาจริง)`);
+        setRobotState('idle');
+      } else {
+        addMsgTypewriter('vora', data.response_text);
+        setRobotState('idle');
+      }
+
+      if (data.response_text && !ttsMuted) {
+        playTTSFromServer(data.response_text);
+      }
+    } else if (data.response_text) {
+      addMsgTypewriter('vora', data.response_text);
+      setRobotState('idle');
+    } else {
+      addMsg('system', '⚠️ Server ไม่มีคำตอบ');
+      setRobotState('idle');
+    }
+  } catch(e2) {
+    removeThinkingSkeleton();
+    addMsg('system', '❌ ไม่สามารถเชื่อมต่อ Server ได้');
+    logConsole('err', `Server error: ${e2.message}`);
+    setRobotState('idle');
+  }
+}
+
+function formatMotion(m) {
+  if (!m) return '✅ ทำแล้วครับ';
+  if (m.type === 'stop') return '🛑 หยุดแล้วครับ';
+  const parts = [];
+  if (m.linear_x > 0) parts.push('⬆️ เดินหน้า');
+  if (m.linear_x < 0) parts.push('⬇️ ถอยหลัง');
+  if (m.angular_z > 0) parts.push('⬅️ เลี้ยวซ้าย');
+  if (m.angular_z < 0) parts.push('➡️ เลี้ยวขวา');
+  if (m.linear_y > 0) parts.push('↗️ เลื่อนซ้าย');
+  if (m.linear_y < 0) parts.push('↙️ เลื่อนขวา');
+  return (parts.length ? parts.join(' + ') : '✅ ทำแล้ว') + ' ครับ';
+}
+
+// ═══════════════════════════════════════════════════════════
+//  SEARCH STATUS POLLING (Fallback when Dashboard WS blocked)
+// ═══════════════════════════════════════════════════════════
+function startSearchPolling() {
+  stopSearchPolling();
+  _lastSearchStatus = null;
+  console.log('🔄 Starting search status polling (WS fallback)');
+  _searchPollTimer = setInterval(async () => {
+    try {
+      let data = null;
+      try {
+        const r = await fetch(`${GW_BASE}/search/status`, {signal: AbortSignal.timeout(2000)});
+        if (r.ok) { const d = await r.json(); data = d.last_event || null; }
+      } catch(e) {
+        try {
+          const r2 = await fetch(`${SERVER_BASE}/pipeline/search-status`, {signal: AbortSignal.timeout(3000)});
+          if (r2.ok) { const d2 = await r2.json(); if (d2.status && d2.status !== 'none') data = d2; }
+        } catch(e2) { /* both failed */ }
+      }
+      if (!data) return;
+      const st = data.status;
+      if (st === _lastSearchStatus) return;
+      _lastSearchStatus = st;
+      if (['found', 'not_found', 'cancelled', 'error', 'multi_complete'].includes(st)) {
+        console.log(`📡 Poll got terminal: ${st}`);
+        handleDashboardEvent(data);
+        stopSearchPolling();
+      } else if (st === 'scanning' || st === 'approaching') {
+        handleDashboardEvent(data);
+      }
+    } catch(e) { /* ignore */ }
+  }, 2000);
+}
+
+function stopSearchPolling() {
+  if (_searchPollTimer) { clearInterval(_searchPollTimer); _searchPollTimer = null; }
+}
+
+// ═══════════════════════════════════════════════════════════
+//  DASHBOARD WEBSOCKET (Real-time events from Gateway)
+// ═══════════════════════════════════════════════════════════
+let dashReconnectTimer = null;
+
+function connectDashboard() {
+  if (dashWs && dashWs.readyState <= 1) return;
+  if (dashReconnectTimer) clearTimeout(dashReconnectTimer);
+
+  const url = `${GW_WS}/gw/dashboard`;
+  console.log('📡 Dashboard WS:', url);
+
+  try { dashWs = new WebSocket(url); } catch(e) { scheduleDashReconnect(); return; }
+
+  dashWs.onopen = () => {
+    console.log('✅ Dashboard connected');
+    setStatus('st-gw', true);
+    gwAvailable = true;
+  };
+
+  dashWs.onmessage = e => {
+    try {
+      const data = JSON.parse(e.data);
+      logConsole('evt', `Dashboard: ${JSON.stringify(data).substring(0, 250)}`);
+      handleDashboardEvent(data);
+    }
+    catch(err) { console.warn('Dashboard msg parse error:', err); }
+  };
+
+  dashWs.onclose = () => {
+    console.log('Dashboard WS closed');
+    scheduleDashReconnect();
+  };
+
+  dashWs.onerror = () => {};
+}
+
+function scheduleDashReconnect() {
+  if (dashReconnectTimer) clearTimeout(dashReconnectTimer);
+  dashReconnectTimer = setTimeout(connectDashboard, 4000);
+}
+
+function handleDashboardEvent(data) {
+  const type = (data.type || data.event || '').toLowerCase();
+  const status = (data.status || '').toLowerCase();
+
+  if (type === 'search_status') {
+    switch(status) {
+      case 'started': case 'multi_started':
+        showSearchCard(data.target || data.targets?.join(', ') || '...');
+        setRobotState('searching');
+        showBBox('searching', data.target || '...');
+        if (!$('active-cot')) {
+          showChainOfThought(data.target);
+          addCotStep('🔍', `Target: <strong>${data.target || '...'}</strong>`, 'done');
+          addCotStep('📷', 'Scanning camera feed...', 'active');
+        }
+        return;
+      case 'scanning':
+        {
+          const step = data.step || 0;
+          const maxSteps = data.max_steps || 12;
+          const action = data.action || '';
+          const angle = data.angle || 0;
+          const reason = data.reason || '';
+          const checks = data.total_checks || '?';
+          const vlmScene = data.vlm_scene || '';
+          const llmReason = data.llm_reason || '';
+          const llmFound = data.llm_found || false;
+          const llmConf = data.llm_confidence != null ? data.llm_confidence : -1;
+
+          updateSearchProgress(step, maxSteps,
+            `Step ${step}/${maxSteps} — VLM checks: ${checks}`
+          );
+          setRobotState('searching');
+
+          let cotIcon = '🗺️';
+          let cotText = '';
+          if (action === 'turn') {
+            cotIcon = angle > 0 ? '↰' : '↱';
+            cotText = `<strong>Step ${step}</strong> Turn ${angle > 0 ? 'left' : 'right'} ${Math.abs(angle)}°`;
+          } else if (action === 'forward') {
+            cotIcon = '🚶';
+            cotText = `<strong>Step ${step}</strong> Move forward`;
+            if (Math.abs(angle) > 5) cotText += ` (heading ${angle > 0 ? '+' : ''}${angle}°)`;
+          } else {
+            cotText = `<strong>Step ${step || '?'}</strong> Scanning...`;
+          }
+          if (reason) cotText += ` <span class="cot-reason">— ${reason}</span>`;
+
+          if (vlmScene) {
+            cotText += `<br/><div class="cot-thinking-block vlm" onclick="this.classList.toggle('expanded')">` +
+              `<div class="cot-thinking-header"><span class="cot-thinking-icon">👁️</span> <strong>VLM Scene</strong> <span class="cot-thinking-toggle">▸</span></div>` +
+              `<div class="cot-thinking-body">${vlmScene}</div></div>`;
+          }
+
+          if (llmReason) {
+            const confClass = llmFound ? 'found' : (llmConf >= 0.3 ? 'partial' : 'notfound');
+            const confLabel = llmFound ? '✅ Found' : (llmConf >= 0.3 ? `⚠️ Partial (${llmConf.toFixed(1)})` : `❌ Not found`);
+            cotText += `<div class="cot-thinking-block llm ${confClass}" onclick="this.classList.toggle('expanded')">` +
+              `<div class="cot-thinking-header"><span class="cot-thinking-icon">🧠</span> <strong>LLM</strong> ${confLabel} <span class="cot-thinking-toggle">▸</span></div>` +
+              `<div class="cot-thinking-body">${llmReason}</div></div>`;
+          }
+
+          addCotStep(cotIcon, cotText, 'active');
+        }
+        return;
+      case 'approaching':
+        {
+          const step = data.step || 0;
+          const maxSteps = data.max_steps || 6;
+          const desc = data.description || '';
+          const loc = data.location || '';
+          let cotText = `<strong>Approaching</strong> ${data.target} — step ${step}/${maxSteps}`;
+          if (loc) cotText += ` <span class="cot-reason">[${loc}]</span>`;
+          if (desc) cotText += `<br/><span class="cot-vlm-desc" onclick="this.classList.toggle('expanded')" title="Click to expand">👁️ ${desc}</span>`;
+          addCotStep('🚶', cotText, 'active');
+          updateSearchProgress(step, maxSteps,
+            `🚶 เคลื่อนที่เข้าหา ${data.target} (${step}/${maxSteps})`
+          );
+          setRobotState('searching');
+        }
+        return;
+      case 'found':
+        if (data.description) addCotStep('👁️', `VLM: <span class="cot-vlm-desc expanded">${data.description}</span>`, 'done');
+        addCotStep('🎯', `Object localized: <strong>${data.location || 'detected'}</strong>`, 'done');
+        if (data.observer_x !== undefined) addCotStep('🗺️', `Observer: X=${data.observer_x.toFixed(2)}, Y=${data.observer_y.toFixed(2)}${data.section ? ' ('+data.section+')' : ''}`, 'done');
+        else if (data.robot_x !== undefined) addCotStep('🗺️', `Observer: X=${data.robot_x.toFixed(2)}, Y=${data.robot_y.toFixed(2)}`, 'done');
+        addCotStep('✅', `Target <strong>${data.target}</strong> found!`, 'done');
+        finishChainOfThought();
+        showFoundCard(
+          data.target || 'Object',
+          data.capture_url ? `${SERVER_BASE}${data.capture_url}` : null,
+          data.announce || data.description || '',
+          data.robot_x,
+          data.robot_y
+        );
+        showBBox('found', data.target, data.location);
+        setRobotState('idle');
+        return;
+      case 'not_found':
+        addCotStep('❌', `Target not found after scanning`, 'done');
+        finishChainOfThought();
+        showNotFoundCard(data.target || 'Object');
+        clearBBox();
+        setRobotState('idle');
+        return;
+      case 'cancelled':
+        finishChainOfThought();
+        removeSearchCard();
+        addMsg('system', '🔍 การค้นหาถูกยกเลิก');
+        clearBBox();
+        setRobotState('idle');
+        return;
+      case 'multi_complete':
+        finishChainOfThought();
+        removeSearchCard();
+        if (data.summary) addMsgTypewriter('vora', data.summary);
+        clearBBox();
+        setRobotState('idle');
+        return;
+      case 'error':
+        finishChainOfThought();
+        removeSearchCard();
+        addMsg('system', `❌ ค้นหาผิดพลาด: ${data.error || 'unknown'}`);
+        clearBBox();
+        setRobotState('idle');
+        return;
+    }
+  }
+
+  if (type === 'search_obstacle') {
+    showObstacleCard(data);
+    return;
+  }
+
+  // Legacy event types
+  switch(type) {
+    case 'search_start':
+      showSearchCard(data.target || '...');
+      break;
+    case 'search_progress':
+      updateSearchProgress(data.step || 0, data.total_steps || 12, data.status || `Step ${data.step}`);
+      break;
+    case 'search_found':
+      showFoundCard(
+        data.target || 'Object',
+        data.capture_url ? `${SERVER_BASE}${data.capture_url}` : null,
+        data.description || '',
+        data.robot_x,
+        data.robot_y
+      );
+      break;
+    case 'search_not_found':
+      showNotFoundCard(data.target || 'Object');
+      break;
+    case 'search_cancelled':
+      removeSearchCard();
+      addMsg('system', '🔍 การค้นหาถูกยกเลิก');
+      break;
+    case 'obstacle':
+      showObstacleCard(data);
+      break;
+    case 'tts_audio':
+      playTTSAudio(data.audio_b64 || data.audio_base64, data.format || 'wav');
+      break;
+    case 'partial':
+      transcriptBar.innerHTML = `<span style="color:var(--accent2)">🎤 ${data.text || '...'}</span>`;
+      transcriptBar.classList.add('active');
+      break;
+    case 'final': case 'result': case 'transcript_final':
+      if (data.text) {
+        transcriptBar.textContent = `✅ "${data.text}"`;
+        setTimeout(() => { transcriptBar.textContent = ''; transcriptBar.classList.remove('active'); }, 2000);
+      }
+      break;
+    default:
+      if (data.text && type) console.log(`[Dash] ${type}: ${data.text}`);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+//  TTS AUDIO PLAYBACK
+// ═══════════════════════════════════════════════════════════
+function playTTSAudio(base64, format) {
+  if (!base64) { console.warn('[TTS] playTTSAudio called with empty base64'); return; }
+  if (ttsMuted) return;
+  try {
+    ttsAudio.pause();
+    ttsAudio.currentTime = 0;
+    const mime = format === 'mp3' ? 'audio/mpeg' : 'audio/wav';
+    ttsAudio.src = `data:${mime};base64,${base64}`;
+    btnMic.classList.add('speaking');
+    startSpeakingVisualizer();
+    ttsAudio.onended = () => { btnMic.classList.remove('speaking'); stopVoiceVisualizer(); };
+    console.log(`[TTS] playing ${format || 'wav'} (${base64.length} b64 chars)`);
+    ttsAudio.play().catch(e => {
+      console.error('[TTS] play() failed:', e.name, e.message);
+      btnMic.classList.remove('speaking');
+      stopVoiceVisualizer();
+    });
+  } catch(e) { console.error('[TTS] playTTSAudio error:', e); }
+}
+
+async function playTTSFromServer(text) {
+  if (!text || ttsMuted) return;
+  try {
+    const r = await fetch(`${SERVER_BASE}/api/server/tts/speak`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({text}),
+      signal: AbortSignal.timeout(15000)
+    });
+    if (r.ok) {
+      const blob = await r.blob();
+      const url = URL.createObjectURL(blob);
+      ttsAudio.src = url;
+      btnMic.classList.add('speaking');
+      startSpeakingVisualizer();
+      ttsAudio.onended = () => { btnMic.classList.remove('speaking'); stopVoiceVisualizer(); URL.revokeObjectURL(url); };
+      ttsAudio.play().catch(e => { btnMic.classList.remove('speaking'); stopVoiceVisualizer(); });
+    }
+  } catch(e) { console.warn('Server TTS error:', e); }
+}
+
+// ═══════════════════════════════════════════════════════════
+//  VOICE INPUT
+// ═══════════════════════════════════════════════════════════
+btnMic.onclick = toggleMic;
+btnSend.onclick = submitText;
+
+function toggleMic() {
+  if (isRecording) {
+    stopRecording();
+    setRobotState('idle');
+  } else {
+    startRecording();
+    setRobotState('listening');
+  }
+}
+
+async function _getMicStream() {
+  const base = {channelCount:1, echoCancellation:true, noiseSuppression:true, sampleRate:{ideal:16000}};
+  try {
+    return await navigator.mediaDevices.getUserMedia({
+      audio: MIC_DEVICE_ID ? {...base, deviceId:{ideal:MIC_DEVICE_ID}} : base
+    });
+  } catch(e) {
+    if (MIC_DEVICE_ID) {
+      console.warn('Preferred mic failed, falling back to any mic:', e.name);
+      return await navigator.mediaDevices.getUserMedia({audio: true});
+    }
+    throw e;
+  }
+}
+
+function _showMicError(e) {
+  console.error('Mic error:', e.name, e.message);
+  if (e.name === 'NotAllowedError' || e.name === 'PermissionDeniedError') {
+    addMsg('system', '❌ ไมค์ถูกบล็อกใน Browser — คลิกไอคอนล็อคใน URL bar แล้วเลือก "Allow" สำหรับไมค์');
+  } else if (e.name === 'NotFoundError' || e.name === 'DevicesNotFoundError') {
+    addMsg('system', '❌ ไม่พบไมค์ — ตรวจสอบว่าเสียบไมค์แล้ว Refresh หน้าเว็บ');
+  } else if (e.name === 'NotReadableError' || e.name === 'TrackStartError') {
+    addMsg('system', '❌ ไมค์ถูกใช้โดยแอปอื่น — ปิดแอปอื่นที่ใช้ไมค์แล้วลองใหม่');
+  } else {
+    addMsg('system', `❌ ไมค์: ${e.name} — ลอง Refresh หน้าเว็บ (Ctrl+Shift+R)`);
+  }
+}
+
+async function startRecording() {
+  try {
+    mediaStream = await _getMicStream();
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    sampleRate = audioCtx.sampleRate;
+
+    const gwWsUrl = `${GW_WS}/gw/audio`;
+    const serverWsUrl = `${SERVER_WS}/ws/stt`;
+    let usingServerFallback = false;
+
+    function connectAudioWs(url, isFallback) {
+      audioWs = new WebSocket(url);
+      usingServerFallback = isFallback;
+
+      audioWs.onopen = () => {
+        console.log(isFallback ? '🎤 STT via Server (fallback)' : '🎤 STT via Gateway');
+        audioWs.send(JSON.stringify({rate: sampleRate, lang: 'th'}));
+
+        const source = audioCtx.createMediaStreamSource(mediaStream);
+        processor = audioCtx.createScriptProcessor(4096, 1, 1);
+        processor.onaudioprocess = e => {
+          if (audioWs && audioWs.readyState === WebSocket.OPEN) {
+            const pcm = e.inputBuffer.getChannelData(0);
+            const int16 = new Int16Array(pcm.length);
+            for (let i = 0; i < pcm.length; i++) int16[i] = Math.max(-32768, Math.min(32767, pcm[i] * 32767));
+            audioWs.send(int16.buffer);
+          }
+        };
+        source.connect(processor);
+        processor.connect(audioCtx.destination);
+
+        isRecording = true;
+        btnMic.classList.add('recording');
+        transcriptBar.textContent = '🎤 Listening...';
+        transcriptBar.classList.add('active');
+      };
+
+      audioWs.onmessage = e => {
+        try {
+          const data = JSON.parse(e.data);
+          if (usingServerFallback) {
+            handleServerSTTEvent(data);
+          } else {
+            handleAudioEvent(data);
+          }
+        } catch(err) {}
+      };
+
+      audioWs.onclose = () => { if (isRecording) stopRecording(); };
+      audioWs.onerror = e => {
+        console.error('Audio WS error:', e);
+        if (!isFallback) {
+          console.warn('⚠️ Gateway audio WS blocked — falling back to Server STT');
+          audioWs = null;
+          connectAudioWs(serverWsUrl, true);
+        } else {
+          addMsg('system', '⚠️ ไม่สามารถเชื่อมต่อเสียง — ลอง refresh หน้าเว็บ');
+          stopRecording();
+        }
+      };
+    }
+
+    connectAudioWs(gwWsUrl, false);
+  } catch(e) {
+    _showMicError(e);
+  }
+}
+
+function handleServerSTTEvent(data) {
+  const type = (data.type || '').toLowerCase();
+  if (type === 'partial') {
+    transcriptBar.innerHTML = `<span style="color:var(--accent2)">🎤 ${data.text || '...'}</span>`;
+  } else if (['final','result','transcript_final'].includes(type)) {
+    const text = data.text || '';
+    if (text) {
+      transcriptBar.textContent = `✅ "${text}"`;
+      addMsg('user', text);
+      sendCmd(text);
+      setTimeout(() => { transcriptBar.textContent = isRecording ? '🎤 Listening...' : ''; }, 1500);
+    }
+  } else if (type === 'connected') {
+    transcriptBar.textContent = '🎤 Listening...';
+  }
+}
+
+function stopRecording() {
+  isRecording = false;
+  btnMic.classList.remove('recording');
+  transcriptBar.textContent = '';
+  transcriptBar.classList.remove('active');
+  stopVoiceVisualizer();
+  if (processor) { processor.disconnect(); processor = null; }
+  if (audioCtx) { audioCtx.close().catch(()=>{}); audioCtx = null; }
+  if (mediaStream) { mediaStream.getTracks().forEach(t => t.stop()); mediaStream = null; }
+  if (audioWs) { audioWs.close(); audioWs = null; }
+}
+
+function handleAudioEvent(data) {
+  const type = (data.type || '').toLowerCase();
+  if (type === 'partial') {
+    transcriptBar.innerHTML = `<span style="color:var(--accent2)">🎤 ${data.text || '...'}</span>`;
+  } else if (['final','result','transcript_final'].includes(type)) {
+    const text = data.text || '';
+    if (text) {
+      transcriptBar.textContent = `✅ "${text}"`;
+      addMsg('user', text);
+      setTimeout(() => { transcriptBar.textContent = isRecording ? '🎤 Listening...' : ''; }, 1500);
+    }
+  } else if (type === 'connected') {
+    transcriptBar.textContent = '🎤 Listening...';
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+//  CAMERA
+// ═══════════════════════════════════════════════════════════
+function startCamera() {
+  cameraLive = true;
+  camMini.classList.remove('hidden');
+  camMini.classList.add('live');
+
+  async function fetchFrame() {
+    if (!cameraLive) return;
+    try {
+      const r = await fetch(`${SERVER_BASE}/camera/frame`, {cache: 'no-store'});
+      if (r.ok) {
+        const blob = await r.blob();
+        if (blob.size > 100) {
+          const url = URL.createObjectURL(blob);
+          camMiniImg.onload = () => URL.revokeObjectURL(url);
+          camMiniImg.src = url;
+          if (camCenterImg) {
+            camCenterImg.src = url;
+            camCenterImg.style.display = '';
+          }
+          if (camNoFeed) camNoFeed.style.display = 'none';
+          camFullImg.src = url;
+          const cameraMain = $('camera-main');
+          if (cameraMain) cameraMain.classList.add('live');
+          setStatus('st-camera', true);
+          _lastFrameBytes = blob.size;
+          frameCount++;
+          const now = Date.now();
+          if (now - lastFpsTime >= 2000) {
+            cameraFps = Math.round(frameCount / ((now - lastFpsTime) / 1000));
+            frameCount = 0;
+            lastFpsTime = now;
+          }
+        }
+      }
+    } catch(e) {
+      setStatus('st-camera', false);
+      if (camNoFeed) camNoFeed.style.display = '';
+      if (camCenterImg) camCenterImg.style.display = 'none';
+      const cameraMain = $('camera-main');
+      if (cameraMain) cameraMain.classList.remove('live');
+    }
+    if (cameraLive) setTimeout(fetchFrame, 150);
+  }
+  fetchFrame();
+}
+
+function openCameraFull() { $('camera-full').classList.add('show'); }
+function closeCameraFull() { $('camera-full').classList.remove('show'); }
+
+async function captureFrame() {
+  try {
+    const r = await fetch(`${SERVER_BASE}/camera/capture`, {method: 'POST'});
+    const data = await r.json();
+    if (data.success) addMsg('system', `📸 Captured: ${data.filename}`);
+    else addMsg('system', `❌ Capture failed`);
+  } catch(e) { addMsg('system', '❌ Capture error'); }
+}
+
+// ═══════════════════════════════════════════════════════════
+//  MICROPHONE ENUMERATION
+// ═══════════════════════════════════════════════════════════
+async function enumerateMics() {
+  try {
+    const devices = await navigator.mediaDevices.enumerateDevices();
+    const mics = devices.filter(d => d.kind === 'audioinput');
+    $('set-mic').innerHTML = mics.map((m, i) =>
+      `<option value="${m.deviceId}" ${m.deviceId === MIC_DEVICE_ID ? 'selected' : ''}>${m.label || `Mic ${i+1}`}</option>`
+    ).join('');
+  } catch(e) { $('set-mic').innerHTML = '<option>Mic access denied</option>'; }
+}
+
+// ═══════════════════════════════════════════════════════════
+//  SETTINGS
+// ═══════════════════════════════════════════════════════════
+function loadSettings() {
+  $('set-gw-url').value = GW_BASE;
+  $('set-auto-send').value = AUTO_SEND ? '1' : '0';
+  $('set-silence').value = String(SILENCE_TIMEOUT);
+}
+
+function openSettings() { loadSettings(); $('settings-overlay').classList.add('show'); }
+function closeSettings() { $('settings-overlay').classList.remove('show'); }
+
+function saveSettings() {
+  GW_BASE = $('set-gw-url').value.replace(/\/+$/, '');
+  GW_WS = GW_BASE.replace(/^http/, 'ws');
+  AUTO_SEND = $('set-auto-send').value === '1';
+  SILENCE_TIMEOUT = parseInt($('set-silence').value);
+  MIC_DEVICE_ID = $('set-mic').value;
+
+  localStorage.setItem('vora_gw_url', GW_BASE);
+  localStorage.setItem('vora_auto_send', AUTO_SEND ? '1' : '0');
+  localStorage.setItem('vora_silence', String(SILENCE_TIMEOUT));
+  localStorage.setItem('vora_mic', MIC_DEVICE_ID);
+
+  closeSettings();
+  if (dashWs) dashWs.close();
+  checkGateway();
+  connectDashboard();
+  addMsg('system', '✅ บันทึก Settings แล้ว');
+}
+
+// ═══════════════════════════════════════════════════════════
+//  MEMORY PANEL
+// ═══════════════════════════════════════════════════════════
+async function openMemory() {
+  $('memory-overlay').classList.add('show');
+  $('memory-panel').classList.add('show');
+  await loadMemory();
+}
+function closeMemory() {
+  $('memory-overlay').classList.remove('show');
+  $('memory-panel').classList.remove('show');
+}
+
+async function loadMemory() {
+  const list = $('memory-list');
+  list.innerHTML = `<div class="memory-empty"><div class="memory-empty-icon">⏳</div><div class="memory-empty-title">กำลังโหลด...</div></div>`;
+  try {
+    const r = await fetch(`${GW_BASE}/memory/objects`, {signal: AbortSignal.timeout(5000)});
+    const data = await r.json();
+
+    if (!data.objects || Object.keys(data.objects).length === 0) {
+      list.innerHTML = `<div class="memory-empty">
+        <div class="memory-empty-icon">🧠</div>
+        <div class="memory-empty-title">ยังไม่มีข้อมูลที่จำได้</div>
+        <div class="memory-empty-sub">เมื่อหุ่นยนต์เจอสิ่งของ จะจำตำแหน่งไว้ให้อัตโนมัติ</div>
+      </div>`;
+      return;
+    }
+
+    let html = '';
+    const emojis = {pen:'🖊️', pencil:'✏️', wallet:'👛', card:'💳', coil:'🔧'};
+    for (const [name, records] of Object.entries(data.objects)) {
+      const latest = records[0];
+      const emoji = emojis[name] || '📦';
+      const ageText = latest.age_hours < 1 ? 'เมื่อสักครู่' : `${latest.age_hours.toFixed(1)} ชม. ที่แล้ว`;
+      const ox = latest.observer_x !== undefined ? latest.observer_x : latest.robot_x;
+      const oy = latest.observer_y !== undefined ? latest.observer_y : latest.robot_y;
+      const hasCoords = (ox !== undefined && (ox !== 0 || oy !== 0));
+      const sectionTag = latest.section ? ` [${latest.section}]` : '';
+      const coordText = hasCoords ? `<div class="mem-coords">👁️ Seen from: X=${ox.toFixed(2)}m, Y=${oy.toFixed(2)}m${sectionTag}</div>` : '';
+      html += `
+        <div class="memory-item">
+          <h4>${emoji} ${name}</h4>
+          <p>📍 ${latest.location_description || latest.location || 'Unknown location'}</p>
+          ${coordText}
+          <div class="mem-time">🕐 ${ageText} · พบ ${records.length} ครั้ง</div>
+        </div>`;
+    }
+    list.innerHTML = html;
+  } catch(e) {
+    list.innerHTML = `<div class="memory-empty">
+      <div class="memory-empty-icon">❌</div>
+      <div class="memory-empty-title">ไม่สามารถโหลดได้</div>
+      <div class="memory-empty-sub">ตรวจสอบการเชื่อมต่อ Gateway</div>
+    </div>`;
+  }
+}
+
+async function clearAllMemory() {
+  if (!confirm('ล้างความจำทั้งหมด?')) return;
+  try {
+    await fetch(`${GW_BASE}/memory`, {method: 'DELETE', signal: AbortSignal.timeout(5000)});
+    await loadMemory();
+    addMsg('system', '🗑️ ล้างความจำทั้งหมดแล้ว');
+  } catch(e) {
+    alert('ไม่สามารถล้างความจำได้: ' + e.message);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+//  ROBOT STATE INDICATOR
+// ═══════════════════════════════════════════════════════════
+const STATE_CONFIG = {
+  idle:       { icon: '●', text: 'Idle — พร้อมรับคำสั่ง',         color: 'var(--green)' },
+  listening:  { icon: '🎤', text: 'Listening — กำลังฟัง...',      color: 'var(--red)' },
+  processing: { icon: '⏳', text: 'Processing — กำลังประมวลผล...', color: 'var(--amber)' },
+  executing:  { icon: '🤖', text: 'Executing — กำลังเคลื่อนที่...', color: 'var(--blue)' },
+  searching:  { icon: '🔍', text: 'Searching — กำลังค้นหา...',     color: 'var(--accent2)' },
+};
+
+function setRobotState(state) {
+  robotState = state;
+  if (state !== 'searching') stopSearchPolling();
+  const cfg = STATE_CONFIG[state] || STATE_CONFIG.idle;
+  const bar = $('state-bar');
+  bar.setAttribute('data-state', state);
+  $('state-icon').textContent = cfg.icon;
+  $('state-text').textContent = cfg.text;
+
+  const logoIcon = document.querySelector('.logo-icon');
+  if (logoIcon) {
+    logoIcon.classList.toggle('thinking', ['processing', 'searching', 'executing'].includes(state));
+  }
+
+  chatContainer.classList.toggle('ai-active', ['processing', 'searching'].includes(state));
+}
+
+// ═══════════════════════════════════════════════════════════
+//  TTS MUTE TOGGLE
+// ═══════════════════════════════════════════════════════════
+function toggleTTSMute() {
+  ttsMuted = !ttsMuted;
+  localStorage.setItem('vora_tts_muted', ttsMuted ? '1' : '0');
+  applyTTSMute();
+  addMsg('system', ttsMuted ? '🔇 ปิดเสียงตอบกลับแล้ว' : '🔊 เปิดเสียงตอบกลับแล้ว');
+}
+
+function applyTTSMute() {
+  const btn = $('btn-tts-toggle');
+  btn.textContent = ttsMuted ? '🔇' : '🔊';
+  btn.classList.toggle('tts-muted', ttsMuted);
+}
+
+// ═══════════════════════════════════════════════════════════
+//  EMERGENCY STOP
+// ═══════════════════════════════════════════════════════════
+function setupEstop() {
+  $('btn-estop').addEventListener('click', emergencyStop);
+  $('btn-estop').addEventListener('touchstart', e => { e.preventDefault(); emergencyStop(); });
+}
+
+async function emergencyStop() {
+  setRobotState('idle');
+  logConsole('err', '🚨 EMERGENCY STOP');
+  removeSearchCard();
+  clearBBox();
+  if (isRecording) stopRecording();
+
+  const promises = [];
+  if (gwAvailable) {
+    promises.push(
+      fetch(`${GW_BASE}/gw/text`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({text: 'หยุด', lang: 'th'}),
+        signal: AbortSignal.timeout(3000)
+      }).catch(() => {}),
+      fetch(`${GW_BASE}/search/cancel`, {method: 'POST', signal: AbortSignal.timeout(2000)}).catch(() => {})
+    );
+  }
+  promises.push(
+    fetch(`${SERVER_BASE}/pipeline/command`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({text: 'หยุด', session_id: 'webapp', lang: 'th'}),
+      signal: AbortSignal.timeout(3000)
+    }).catch(() => {})
+  );
+
+  await Promise.allSettled(promises);
+  addMsg('system', '🚨 <strong>EMERGENCY STOP</strong> — หุ่นยนต์หยุดทำงานแล้ว');
+}
+
+// ═══════════════════════════════════════════════════════════
+//  D-PAD SETUP
+// ═══════════════════════════════════════════════════════════
+function setupDpad() {
+  document.querySelectorAll('.dpad button[data-dpad-cmd]').forEach(btn => {
+    const cmd = btn.dataset.dpadCmd;
+    btn.addEventListener('click', () => sendCmd(cmd));
+    const addPressed = () => btn.classList.add('pressed');
+    const removePressed = () => btn.classList.remove('pressed');
+    btn.addEventListener('mousedown', addPressed);
+    btn.addEventListener('mouseup', removePressed);
+    btn.addEventListener('mouseleave', removePressed);
+    btn.addEventListener('touchstart', e => { e.preventDefault(); addPressed(); }, {passive: false});
+    btn.addEventListener('touchend', e => { removePressed(); sendCmd(cmd); });
+    btn.addEventListener('touchcancel', removePressed);
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+//  BOUNDING BOX OVERLAY
+// ═══════════════════════════════════════════════════════════
+function showBBox(mode, label, location) {
+  const overlay = $('cam-center-bbox');
+  if (!overlay) return;
+
+  let left = 20, top = 20, w = 60, h = 60;
+  const loc = (location || '').toLowerCase();
+
+  if (loc.includes('left') || loc.includes('ซ้าย')) { left = 5; w = 40; }
+  else if (loc.includes('right') || loc.includes('ขวา')) { left = 55; w = 40; }
+  else { left = 20; w = 60; }
+
+  if (loc.includes('top') || loc.includes('upper') || loc.includes('บน') || loc.includes('far') || loc.includes('ไกล')) { top = 5; h = 40; }
+  else if (loc.includes('bottom') || loc.includes('lower') || loc.includes('ล่าง') || loc.includes('near') || loc.includes('ใกล้')) { top = 55; h = 40; }
+  else { top = 20; h = 60; }
+
+  const bboxClass = mode === 'found' ? 'bbox' : 'bbox searching';
+  overlay.innerHTML = `
+    <div class="${bboxClass}" style="left:${left}%;top:${top}%;width:${w}%;height:${h}%">
+      <span class="bbox-label">${mode === 'found' ? '✅' : '🔍'} ${label}</span>
+    </div>`;
+
+  if (mode === 'found') setTimeout(() => clearBBox(), 8000);
+}
+
+function clearBBox() {
+  const overlay = $('cam-center-bbox');
+  if (overlay) overlay.innerHTML = '';
+}
+
+// ═══════════════════════════════════════════════════════════
+//  CONSOLE LOG PANEL
+// ═══════════════════════════════════════════════════════════
+function setupConsole() {
+  $('btn-console').addEventListener('click', toggleConsole);
+}
+
+function toggleConsole() {
+  consoleOpen = !consoleOpen;
+  $('console-panel').classList.toggle('show', consoleOpen);
+  if (consoleOpen) {
+    const out = $('console-output');
+    out.scrollTop = out.scrollHeight;
+  }
+}
+
+function clearConsole() {
+  $('console-output').innerHTML = '';
+  consoleMsgs = 0;
+  $('console-count').textContent = '0';
+}
+
+function logConsole(dir, text) {
+  consoleMsgs++;
+  $('console-count').textContent = String(Math.min(consoleMsgs, 99));
+
+  const time = new Date().toLocaleTimeString('th-TH', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
+  const arrows = { in: '◄', out: '►', evt: '◆', err: '✕' };
+
+  // Escape HTML entities first to prevent XSS from WS event data
+  const safe = text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  const highlighted = safe.replace(/&quot;([^&]+)&quot;:/g, '"<span class="c-key">$1</span>":')
+    .replace(/:\s*&quot;([^&]*)&quot;/g, ': "<span class="c-str">$1</span>"')
+    .replace(/:\s*(\d+\.?\d*)/g, ': <span class="c-num">$1</span>');
+
+  const line = document.createElement('div');
+  line.className = 'console-line';
+  line.innerHTML = `<span class="c-time">${time}</span><span class="c-dir ${dir}">${arrows[dir] || '?'}</span><span class="c-body">${highlighted}</span>`;
+
+  const out = $('console-output');
+  out.appendChild(line);
+
+  while (out.children.length > 200) out.removeChild(out.firstChild);
+
+  if (out.scrollHeight - out.scrollTop - out.clientHeight < 100) {
+    out.scrollTop = out.scrollHeight;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+//  TELEMETRY PANEL
+// ═══════════════════════════════════════════════════════════
+function openTelemetry() {
+  refreshTelemetry();
+}
+
+function closeTelemetry() {
+  // Telemetry visible in left panel — no-op
+}
+
+async function startPingLoop() {
+  async function doPing() {
+    try {
+      const t0 = performance.now();
+      const r = await fetch(`${SERVER_BASE}/health`, {signal: AbortSignal.timeout(5000), cache: 'no-store'});
+      if (r.ok) { serverPingMs = Math.round(performance.now() - t0); }
+      else { serverPingMs = null; }
+    } catch(e) { serverPingMs = null; }
+
+    if (gwAvailable) {
+      try {
+        const t0 = performance.now();
+        const r = await fetch(`${GW_BASE}/health`, {signal: AbortSignal.timeout(5000), cache: 'no-store'});
+        if (r.ok) { gwPingMs = Math.round(performance.now() - t0); }
+        else { gwPingMs = null; }
+      } catch(e) { gwPingMs = null; }
+    }
+
+    const pingDot = $('ping-dot');
+    const pingText = $('ping-text');
+    const ms = serverPingMs ?? gwPingMs;
+    if (ms !== null) {
+      pingText.textContent = `${ms} ms`;
+      if (ms < 100) { pingDot.style.background = 'var(--green)'; }
+      else if (ms < 300) { pingDot.style.background = 'var(--amber)'; }
+      else { pingDot.style.background = 'var(--red)'; }
+    } else {
+      pingText.textContent = '-- ms';
+      pingDot.style.background = 'var(--text3)';
+    }
+  }
+
+  doPing();
+  setInterval(doPing, 10000);
+}
+
+async function startTelemetryLoop() {
+  try {
+    const r = await fetch(`${SERVER_BASE}/health`, {signal: AbortSignal.timeout(5000)});
+    if (r.ok) {
+      const data = await r.json();
+      $('telem-model').textContent = data.model || '--';
+      $('telem-gpu').textContent = data.gpu_enabled ? '✅ Enabled' : '❌ Off';
+      $('telem-gpu').className = 'telem-value ' + (data.gpu_enabled ? 'good' : 'warn');
+    }
+  } catch(e) {}
+}
+
+
+function refreshTelemetry() {
+  const fmtPing = (ms) => {
+    if (ms === null) return { text: '-- ms', cls: '' };
+    const cls = ms < 100 ? 'good' : ms < 300 ? 'warn' : 'bad';
+    return { text: `${ms} ms`, cls };
+  };
+
+  const sp = fmtPing(serverPingMs);
+  const gp = fmtPing(gwPingMs);
+  $('telem-server-ping').textContent = sp.text;
+  $('telem-server-ping').className = `telem-value ${sp.cls}`;
+  $('telem-gw-ping').textContent = gp.text;
+  $('telem-gw-ping').className = `telem-value ${gp.cls}`;
+
+  $('telem-fps').textContent = cameraFps > 0 ? `${cameraFps} fps` : '--';
+  $('telem-fps').className = 'telem-value ' + (cameraFps >= 5 ? 'good' : cameraFps > 0 ? 'warn' : '');
+
+  $('telem-pos-x').textContent = `${robotPos.x.toFixed(2)} m`;
+  $('telem-pos-y').textContent = `${robotPos.y.toFixed(2)} m`;
+  $('telem-pos-th').textContent = `${(robotPos.th * 180 / Math.PI).toFixed(1)}°`;
+
+  if (_lastFrameBytes > 0) {
+    $('telem-frame-size').textContent = `${(_lastFrameBytes / 1024).toFixed(0)} KB`;
+  }
+
+  const uptimeSec = Math.round((Date.now() - startTime) / 1000);
+  const h = Math.floor(uptimeSec / 3600);
+  const m = Math.floor((uptimeSec % 3600) / 60);
+  const s = uptimeSec % 60;
+  $('telem-uptime').textContent = `${h}h ${m}m ${s}s`;
+
+  renderMapCanvas('map-canvas');
+  if ($('map-expanded').classList.contains('show')) {
+    renderMapCanvas('map-canvas-big');
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+//  SLAM MAP RENDERING
+// ═══════════════════════════════════════════════════════════
+let mapImage = null;
+let mapInfo = null;
+let mapObjects = [];
+let mapAnnotations = {zones: [], landmarks: []};
+let mapImageLoaded = false;
+let annotationMode = null; // null | 'zone' | 'landmark'
+let _annLocalUntil = 0; // timestamp: skip server annotation overwrite until this time
+
+function loadMapImage() {
+  const img = new Image();
+  img.onload = () => { mapImage = img; mapImageLoaded = true;
+    $('map-label').textContent = `Map: ${img.width}×${img.height}`;
+  };
+  img.onerror = () => { $('map-label').textContent = 'Map not available'; };
+  img.src = '/map/image?t=' + Date.now();
+}
+loadMapImage();
+
+async function fetchMapState() {
+  try {
+    const r = await fetch('/map/state');
+    if (!r.ok) return;
+    const d = await r.json();
+    if (d.robot) {
+      robotPos.x = d.robot.x;
+      robotPos.y = d.robot.y;
+      robotPos.th = d.robot.theta;
+      if ($('telem-pos-src')) {
+        const src = d.robot.source || 'none';
+        const srcLabel = src === 'amcl' ? '🗺️ AMCL' : src === 'odom' ? '📡 Odom' : src === 'odom_hybrid' ? '📡 Odom' : src === 'dead_reckoning' ? '🧭 DR' : src === 'manual' ? '📍 Manual' : '—';
+        $('telem-pos-src').textContent = srcLabel;
+      }
+      if ($('map-pos-label')) {
+        $('map-pos-label').textContent = `X:${robotPos.x.toFixed(2)} Y:${robotPos.y.toFixed(2)}`;
+      }
+    }
+    if (d.map) {
+      const prev = mapInfo;
+      mapInfo = d.map;
+      if (!prev ||
+          prev.width  !== d.map.width  ||
+          prev.height !== d.map.height ||
+          prev.origin[0] !== d.map.origin[0] ||
+          prev.origin[1] !== d.map.origin[1]) {
+        loadMapImage();
+      }
+    }
+    if (d.annotations) {
+      if (Date.now() > _annLocalUntil) {
+        const incoming = (d.annotations.zones || []).map(z => z.id);
+        const current = (mapAnnotations.zones || []).map(z => z.id);
+        if (JSON.stringify(incoming.sort()) !== JSON.stringify([...current].sort())) {
+          console.log(`[ANN-POLL] zones overwritten: [${current}] → [${incoming}]`);
+        }
+        mapAnnotations = d.annotations;
+      }
+    }
+    if (d.objects) mapObjects = d.objects;
+    if (d.trail && d.trail.length > 0) {
+      trailPoints = d.trail.map(p => ({ wx: p.x, wy: p.y }));
+    }
+  } catch(e) {}
+}
+setInterval(fetchMapState, 500);
+
+function getMapViewport() {
+  if (!mapInfo || !mapInfo.resolution) return null;
+  const res = mapInfo.resolution;
+  const ox = mapInfo.origin[0];
+  const oy = mapInfo.origin[1];
+  const mw = mapInfo.width;
+  const mh = mapInfo.height;
+  const PAD = 0.5;
+  return {
+    minWx: ox - PAD, maxWx: ox + mw * res + PAD,
+    minWy: oy - PAD, maxWy: oy + mh * res + PAD,
+    res, ox, oy, mw, mh
+  };
+}
+
+function worldToCanvas(wx, wy, cw, ch) {
+  const vp = getMapViewport();
+  if (!vp) return { px: cw/2, py: ch/2 };
+  const vpW = vp.maxWx - vp.minWx;
+  const vpH = vp.maxWy - vp.minWy;
+  const scale = Math.min(cw / vpW, ch / vpH);
+  const offx = (cw - vpW * scale) / 2;
+  const offy = (ch - vpH * scale) / 2;
+  return {
+    px: (wx - vp.minWx) * scale + offx,
+    py: (vp.maxWy - wy) * scale + offy
+  };
+}
+
+function renderMapCanvas(canvasId) {
+  const canvas = $(canvasId);
+  if (!canvas) return;
+  if (canvas.clientWidth > 0 && canvas.clientHeight > 0) {
+    canvas.width = canvas.clientWidth;
+    canvas.height = canvas.clientHeight;
+  }
+  const ctx = canvas.getContext('2d');
+  const cw = canvas.width;
+  const ch = canvas.height;
+
+  ctx.fillStyle = '#0d0d1c';
+  ctx.fillRect(0, 0, cw, ch);
+
+  if (mapImageLoaded && mapImage && mapInfo) {
+    const vp = getMapViewport();
+    if (vp) {
+      const vpW = vp.maxWx - vp.minWx;
+      const vpH = vp.maxWy - vp.minWy;
+      const scale = Math.min(cw / vpW, ch / vpH);
+      const globalOffx = (cw - vpW * scale) / 2;
+      const globalOffy = (ch - vpH * scale) / 2;
+      const mapDrawW = vp.mw * vp.res * scale;
+      const mapDrawH = vp.mh * vp.res * scale;
+      const mapDrawX = (vp.ox - vp.minWx) * scale + globalOffx;
+      const mapDrawY = (vp.maxWy - (vp.oy + vp.mh * vp.res)) * scale + globalOffy;
+      ctx.globalAlpha = 0.9;
+      ctx.imageSmoothingEnabled = false;
+      ctx.drawImage(mapImage, mapDrawX, mapDrawY, mapDrawW, mapDrawH);
+      ctx.imageSmoothingEnabled = true;
+      ctx.globalAlpha = 1.0;
+    }
+  } else {
+    ctx.fillStyle = '#333';
+    ctx.font = '12px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('Map loading...', cw/2, ch/2);
+    return;
+  }
+
+  // Trail
+  if (trailPoints.length > 1) {
+    const isBig = canvasId === 'map-canvas-big';
+    const lineW = isBig ? 2.5 : 1.5;
+    const total = trailPoints.length;
+    for (let i = 1; i < total; i++) {
+      const alpha = 0.12 + 0.55 * (i / total);
+      const tp0 = worldToCanvas(trailPoints[i-1].wx, trailPoints[i-1].wy, cw, ch);
+      const tp1 = worldToCanvas(trailPoints[i].wx, trailPoints[i].wy, cw, ch);
+      ctx.beginPath();
+      ctx.moveTo(tp0.px, tp0.py);
+      ctx.lineTo(tp1.px, tp1.py);
+      ctx.strokeStyle = `rgba(124, 92, 255, ${alpha.toFixed(2)})`;
+      ctx.lineWidth = lineW;
+      ctx.stroke();
+    }
+  }
+
+  // Semantic zones (translucent circles with labels)
+  const isBig = canvasId === 'map-canvas-big';
+  const annZones = mapAnnotations.zones || [];
+  for (const z of annZones) {
+    const cp = worldToCanvas(z.center_x, z.center_y, cw, ch);
+    const vp2 = getMapViewport();
+    if (!vp2) continue;
+    const sc = Math.min(cw / (vp2.maxWx - vp2.minWx), ch / (vp2.maxWy - vp2.minWy));
+    const rPx = (z.radius || 0.8) * sc;
+    ctx.beginPath();
+    ctx.arc(cp.px, cp.py, rPx, 0, Math.PI * 2);
+    ctx.fillStyle = (z.color || '#3b82f6') + '22';
+    ctx.fill();
+    ctx.strokeStyle = (z.color || '#3b82f6') + '88';
+    ctx.lineWidth = isBig ? 2 : 1;
+    ctx.stroke();
+    ctx.fillStyle = (z.color || '#3b82f6') + 'cc';
+    ctx.font = `bold ${isBig ? 11 : 7}px sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.fillText(z.label_th || z.id, cp.px, cp.py + 3);
+  }
+
+  // Landmarks (diamond markers)
+  for (const lm of (mapAnnotations.landmarks || [])) {
+    const lp = worldToCanvas(lm.x, lm.y, cw, ch);
+    const s = isBig ? 5 : 3;
+    ctx.save();
+    ctx.translate(lp.px, lp.py);
+    ctx.rotate(Math.PI / 4);
+    ctx.fillStyle = '#f59e0b';
+    ctx.fillRect(-s, -s, s * 2, s * 2);
+    ctx.restore();
+    ctx.fillStyle = '#fbbf24';
+    ctx.font = `${isBig ? 9 : 6}px sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.fillText(lm.label || lm.id, lp.px, lp.py - s - 3);
+  }
+
+  // Object markers
+  const markerR = canvasId === 'map-canvas-big' ? 8 : 5;
+  const fontSize = canvasId === 'map-canvas-big' ? 11 : 7;
+  for (const obj of mapObjects) {
+    const wp = worldToCanvas(obj.robot_x || 0, obj.robot_y || 0, cw, ch);
+    ctx.beginPath();
+    ctx.arc(wp.px, wp.py, markerR, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(16, 185, 129, 0.85)';
+    ctx.fill();
+    ctx.strokeStyle = '#fff';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    ctx.fillStyle = '#fff';
+    ctx.font = `${fontSize}px sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.fillText(obj.name || '?', wp.px, wp.py - markerR - 2);
+  }
+
+  // Robot
+  const rp = worldToCanvas(robotPos.x, robotPos.y, cw, ch);
+  const dotR = canvasId === 'map-canvas-big' ? 8 : 5;
+  const arrowLen = dotR * 3;
+  const ax = rp.px + Math.cos(-robotPos.th) * arrowLen;
+  const ay = rp.py + Math.sin(-robotPos.th) * arrowLen;
+  ctx.beginPath();
+  ctx.moveTo(rp.px, rp.py);
+  ctx.lineTo(ax, ay);
+  ctx.strokeStyle = '#ff6b6b';
+  ctx.lineWidth = canvasId === 'map-canvas-big' ? 3 : 2;
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.arc(rp.px, rp.py, dotR, 0, Math.PI * 2);
+  ctx.fillStyle = '#7c5cff';
+  ctx.fill();
+  ctx.strokeStyle = '#fff';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.arc(rp.px, rp.py, dotR + 4, 0, Math.PI * 2);
+  ctx.strokeStyle = 'rgba(124, 92, 255, 0.3)';
+  ctx.lineWidth = 3;
+  ctx.stroke();
+}
+
+let setPoseMode = false;
+
+function toggleExpandedMap() {
+  const panel = $('map-expanded');
+  panel.classList.toggle('show');
+  if (panel.classList.contains('show')) {
+    renderMapCanvas('map-canvas-big');
+  } else {
+    setPoseMode = false;
+    $('btn-set-pose').classList.remove('active');
+    $('relocalize-hint').classList.remove('show');
+  }
+}
+
+// 2-click Set Pose: 1st click = position, 2nd click = heading vector.
+// theta = atan2(y2 - y1, x2 - x1)
+let setPoseFirstPoint = null;
+
+function _setPoseHintText(stage) {
+  const h = $('relocalize-hint');
+  if (!h) return;
+  if (stage === 'pos')      h.textContent = '🖱️ Click 1/2: ตำแหน่งหุ่น (position)';
+  else if (stage === 'head') h.textContent = '🖱️ Click 2/2: ทิศที่หุ่นหันหน้า (heading)';
+}
+
+function toggleSetPoseMode() {
+  setPoseMode = !setPoseMode;
+  setPoseFirstPoint = null;
+  $('btn-set-pose').classList.toggle('active', setPoseMode);
+  $('relocalize-hint').classList.toggle('show', setPoseMode);
+  _setPoseHintText('pos');
+  $('map-canvas-big').style.cursor = setPoseMode ? 'crosshair' : 'default';
+}
+
+function canvasToWorld(cx, cy, cw, ch) {
+  const vp = getMapViewport();
+  if (!vp) return null;
+  const vpW = vp.maxWx - vp.minWx;
+  const vpH = vp.maxWy - vp.minWy;
+  const scale = Math.min(cw / vpW, ch / vpH);
+  const offx = (cw - vpW * scale) / 2;
+  const offy = (ch - vpH * scale) / 2;
+  return {
+    wx: (cx - offx) / scale + vp.minWx,
+    wy: vp.maxWy - (cy - offy) / scale
+  };
+}
+
+(function() {
+  const c = $('map-canvas-big');
+  if (!c) return;
+  c.addEventListener('click', async function(e) {
+    const rect = c.getBoundingClientRect();
+    const scaleX = c.width / rect.width;
+    const scaleY = c.height / rect.height;
+    const cx = (e.clientX - rect.left) * scaleX;
+    const cy = (e.clientY - rect.top) * scaleY;
+    const w = canvasToWorld(cx, cy, c.width, c.height);
+    if (!w) return;
+
+    if (setPoseMode) {
+      if (!setPoseFirstPoint) {
+        // 1st click — capture position, wait for heading click
+        setPoseFirstPoint = { wx: w.wx, wy: w.wy };
+        _setPoseHintText('head');
+        console.log('[set-pose] 1/2 position:', w.wx.toFixed(2), w.wy.toFixed(2));
+        return;
+      }
+      // 2nd click — compute heading from vector (1st → 2nd)
+      const dx = w.wx - setPoseFirstPoint.wx;
+      const dy = w.wy - setPoseFirstPoint.wy;
+      const theta = Math.atan2(dy, dx);
+      const px = setPoseFirstPoint.wx, py = setPoseFirstPoint.wy;
+      console.log('[set-pose] 2/2 heading rad=', theta.toFixed(3),
+                  ' deg=', (theta * 180 / Math.PI).toFixed(1));
+      setPoseFirstPoint = null;
+      await sendRelocalize(px, py, theta);
+      setPoseMode = false;
+      $('btn-set-pose').classList.remove('active');
+      $('relocalize-hint').classList.remove('show');
+      _setPoseHintText('pos');
+      c.style.cursor = 'default';
+      return;
+    }
+
+    if (annotationMode) {
+      openAnnotationModal(annotationMode, w.wx, w.wy);
+      annotationMode = null;
+      $('btn-add-zone').classList.remove('active');
+      $('btn-add-landmark').classList.remove('active');
+      c.style.cursor = 'default';
+      return;
+    }
+  });
+
+  // Double-click to edit existing zone/landmark
+  c.addEventListener('dblclick', function(e) {
+    const rect = c.getBoundingClientRect();
+    const scaleX = c.width / rect.width;
+    const scaleY = c.height / rect.height;
+    const cx = (e.clientX - rect.left) * scaleX;
+    const cy = (e.clientY - rect.top) * scaleY;
+    const w = canvasToWorld(cx, cy, c.width, c.height);
+    if (!w) return;
+
+    // Check zones (click within radius)
+    for (const z of (mapAnnotations.zones || [])) {
+      const dx = w.wx - z.center_x, dy = w.wy - z.center_y;
+      if (Math.sqrt(dx * dx + dy * dy) <= (z.radius || 0.8)) {
+        openAnnotationModal('zone', z.center_x, z.center_y, z);
+        return;
+      }
+    }
+    // Check landmarks (within 0.3m)
+    for (const lm of (mapAnnotations.landmarks || [])) {
+      const dx = w.wx - lm.x, dy = w.wy - lm.y;
+      if (Math.sqrt(dx * dx + dy * dy) <= 0.3) {
+        openAnnotationModal('landmark', lm.x, lm.y, lm);
+        return;
+      }
+    }
+  });
+})();
+
+async function sendRelocalize(x, y, theta) {
+  try {
+    console.log('[relocalize] POST x=', x.toFixed(3), ' y=', y.toFixed(3),
+                ' theta_rad=', theta.toFixed(3),
+                ' theta_deg=', (theta * 180 / Math.PI).toFixed(1));
+    const r = await fetch('/map/relocalize', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ x, y, theta }),
+    });
+    const d = await r.json();
+    if (d.ok) {
+      robotPos.x = x;
+      robotPos.y = y;
+      robotPos.th = theta;   // CRITICAL: keep local heading in sync, no stale carry-over
+      trailPoints.length = 0;
+      logConsole('evt', `📍 Pose set: x=${x.toFixed(2)} y=${y.toFixed(2)} θ=${(theta*180/Math.PI).toFixed(1)}°`);
+    } else if (d && d.rejected) {
+      logConsole('warn', `⚠️ Relocalize rejected: ${d.reason || 'unknown'}`);
+    }
+  } catch(e) {
+    logConsole('err', `❌ Relocalize failed: ${e}`);
+  }
+}
+
+async function resetPoseOrigin() {
+  await sendRelocalize(0, 0, 0);
+}
+
+// ═══════════════════════════════════════════════════════════
+//  ANNOTATION FUNCTIONS
+// ═══════════════════════════════════════════════════════════
+function toggleAnnotationMode(mode) {
+  // Cancel other modes
+  setPoseMode = false;
+  $('btn-set-pose').classList.remove('active');
+  $('relocalize-hint').classList.remove('show');
+
+  if (annotationMode === mode) {
+    annotationMode = null;
+    $('btn-add-zone').classList.remove('active');
+    $('btn-add-landmark').classList.remove('active');
+    $('map-canvas-big').style.cursor = 'default';
+  } else {
+    annotationMode = mode;
+    $('btn-add-zone').classList.toggle('active', mode === 'zone');
+    $('btn-add-landmark').classList.toggle('active', mode === 'landmark');
+    $('map-canvas-big').style.cursor = 'crosshair';
+  }
+}
+
+function openAnnotationModal(type, wx, wy, existing) {
+  const form = $('ann-form');
+  form.dataset.type = type;
+  form.dataset.x = wx.toFixed(3);
+  form.dataset.y = wy.toFixed(3);
+  form.dataset.editId = existing ? (existing.id || '') : '';
+
+  $('ann-title').textContent = existing
+    ? `Edit ${type === 'zone' ? 'Zone' : 'Landmark'}`
+    : `Add ${type === 'zone' ? 'Zone' : 'Landmark'}`;
+
+  // Source badge — show for existing entries
+  const badge = $('ann-source-badge');
+  if (existing && type === 'zone') {
+    const src = existing.source || 'seed';
+    badge.textContent = src === 'seed' ? '⬡ Default zone (can be edited or deleted)' : '✎ Manual zone';
+    badge.style.display = '';
+  } else {
+    badge.style.display = 'none';
+  }
+
+  $('ann-zone-fields').style.display = type === 'zone' ? '' : 'none';
+  $('ann-lm-fields').style.display = type === 'landmark' ? '' : 'none';
+  $('ann-delete-btn').style.display = existing ? '' : 'none';
+
+  if (existing) {
+    $('ann-id').value = existing.id || '';
+    $('ann-id').readOnly = true;
+    if (type === 'zone') {
+      $('ann-label-th').value = existing.label_th || '';
+      $('ann-label-en').value = existing.label_en || '';
+      $('ann-radius').value = existing.radius || 0.8;
+      $('ann-color').value = existing.color || '#3b82f6';
+      $('ann-expected').value = (existing.expected_objects || []).join(', ');
+    } else {
+      $('ann-label-th').value = existing.label || '';
+      $('ann-label-en').value = '';
+      $('ann-category').value = existing.category || '';
+    }
+    $('ann-notes').value = existing.notes || '';
+  } else {
+    $('ann-id').value = '';
+    $('ann-id').readOnly = false;
+    $('ann-label-th').value = '';
+    $('ann-label-en').value = '';
+    $('ann-radius').value = 0.8;
+    $('ann-color').value = '#3b82f6';
+    $('ann-expected').value = '';
+    $('ann-category').value = '';
+    $('ann-notes').value = '';
+  }
+
+  // Populate zone-link dropdown for landmarks
+  if (type === 'landmark') {
+    const sel = $('ann-zone-link');
+    sel.innerHTML = '<option value="">No zone</option>';
+    for (const z of (mapAnnotations.zones || [])) {
+      const opt = document.createElement('option');
+      opt.value = z.id;
+      opt.textContent = z.label_th || z.id;
+      sel.appendChild(opt);
+    }
+    if (existing && existing.zone_id) sel.value = existing.zone_id;
+  }
+
+  $('annotation-modal').classList.add('show');
+}
+
+function closeAnnotationModal() {
+  $('annotation-modal').classList.remove('show');
+}
+
+async function saveAnnotation(e) {
+  e.preventDefault();
+  const form = $('ann-form');
+  const type = form.dataset.type;
+  const wx = parseFloat(form.dataset.x);
+  const wy = parseFloat(form.dataset.y);
+  const editId = form.dataset.editId;
+
+  let endpoint, payload;
+  if (type === 'zone') {
+    endpoint = '/map/annotations/zone';
+    payload = {
+      id: $('ann-id').value.trim(),
+      label_th: $('ann-label-th').value.trim(),
+      label_en: $('ann-label-en').value.trim(),
+      center_x: wx,
+      center_y: wy,
+      radius: parseFloat($('ann-radius').value) || 0.8,
+      color: $('ann-color').value,
+      expected_objects: $('ann-expected').value.split(',').map(s => s.trim()).filter(Boolean),
+      notes: $('ann-notes').value.trim(),
+      source: editId ? (mapAnnotations.zones.find(z => z.id === editId)?.source || 'manual') : 'manual',
+    };
+  } else {
+    endpoint = '/map/annotations/landmark';
+    payload = {
+      id: $('ann-id').value.trim(),
+      label: $('ann-label-th').value.trim() || $('ann-label-en').value.trim(),
+      x: wx,
+      y: wy,
+      zone_id: $('ann-zone-link').value,
+      category: $('ann-category').value.trim(),
+      notes: $('ann-notes').value.trim(),
+    };
+  }
+
+  try {
+    const resp = await fetch(endpoint, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(payload),
+    });
+    if (resp.ok) {
+      // Update local state immediately — guard against poll overwrite for 5s
+      _annLocalUntil = Date.now() + 5000;
+      if (type === 'zone') {
+        const zones = mapAnnotations.zones.filter(z => z.id !== payload.id);
+        zones.push(payload);
+        mapAnnotations = {...mapAnnotations, zones};
+      } else {
+        const landmarks = mapAnnotations.landmarks.filter(l => l.id !== payload.id);
+        landmarks.push(payload);
+        mapAnnotations = {...mapAnnotations, landmarks};
+      }
+      logConsole('evt', `Saved ${type}: ${payload.id}`);
+    } else {
+      logConsole('err', `Save ${type} failed: HTTP ${resp.status}`);
+    }
+  } catch (err) {
+    logConsole('err', `Failed to save ${type}: ${err}`);
+  }
+  closeAnnotationModal();
+}
+
+async function deleteAnnotation() {
+  const form = $('ann-form');
+  const type = form.dataset.type;
+  const id = form.dataset.editId;
+  if (!id) return;
+
+  // Debug: log what we're about to delete
+  const existingZone = type === 'zone' ? mapAnnotations.zones.find(z => z.id === id) : null;
+  console.log(`[ANN-DELETE] type=${type} id="${id}" source="${existingZone?.source || 'n/a'}"`);
+  console.log(`[ANN-DELETE] zones BEFORE delete:`, (mapAnnotations.zones || []).map(z => z.id));
+
+  if (!confirm(`Delete ${type} "${id}"?`)) return;
+  const endpoint = type === 'zone'
+    ? `/map/annotations/zone/${id}`
+    : `/map/annotations/landmark/${id}`;
+  console.log(`[ANN-DELETE] sending DELETE ${endpoint}`);
+  try {
+    const resp = await fetch(endpoint, {method: 'DELETE'});
+    console.log(`[ANN-DELETE] response HTTP ${resp.status} ok=${resp.ok}`);
+    if (resp.ok) {
+      // Remove from local state immediately — guard against poll overwrite for 5s
+      _annLocalUntil = Date.now() + 5000;
+      if (type === 'zone') {
+        mapAnnotations = {...mapAnnotations, zones: mapAnnotations.zones.filter(z => z.id !== id)};
+      } else {
+        mapAnnotations = {...mapAnnotations, landmarks: mapAnnotations.landmarks.filter(l => l.id !== id)};
+      }
+      console.log(`[ANN-DELETE] zones AFTER delete:`, (mapAnnotations.zones || []).map(z => z.id));
+      logConsole('evt', `Deleted ${type}: ${id}`);
+    } else {
+      logConsole('err', `Delete ${type} failed: HTTP ${resp.status}`);
+    }
+  } catch (err) {
+    console.error(`[ANN-DELETE] fetch error:`, err);
+    logConsole('err', `Failed to delete ${type}: ${err}`);
+  }
+  closeAnnotationModal();
+}
+
+setInterval(() => { refreshTelemetry(); }, 3000);
+
+setInterval(() => {
+  renderMapCanvas('map-canvas');
+  if ($('map-expanded').classList.contains('show')) {
+    renderMapCanvas('map-canvas-big');
+  }
+}, 500);
+
+// ═══════════════════════════════════════════════════════════
+//  VOICE VISUALIZER
+// ═══════════════════════════════════════════════════════════
+const voiceViz = $('voice-visualizer');
+const VBAR_COUNT = 32;
+
+(function initVoiceViz() {
+  for (let i = 0; i < VBAR_COUNT; i++) {
+    const bar = document.createElement('div');
+    bar.className = 'vbar';
+    bar.style.height = '3px';
+    voiceViz.appendChild(bar);
+  }
+})();
+
+let vizAnimFrame = null;
+let vizAnalyser = null;
+
+function startVoiceVisualizer(analyserNode) {
+  vizAnalyser = analyserNode;
+  voiceViz.classList.add('active');
+  voiceViz.classList.remove('speaking');
+  animateViz();
+}
+
+function startSpeakingVisualizer() {
+  voiceViz.classList.add('active', 'speaking');
+  if (!vizAnimFrame) animateVizSimulated();
+}
+
+function stopVoiceVisualizer() {
+  voiceViz.classList.remove('active', 'speaking');
+  vizAnalyser = null;
+  if (vizAnimFrame) { cancelAnimationFrame(vizAnimFrame); vizAnimFrame = null; }
+  voiceViz.querySelectorAll('.vbar').forEach(b => b.style.height = '3px');
+}
+
+function animateViz() {
+  if (!vizAnalyser) { vizAnimFrame = null; return; }
+  const data = new Uint8Array(vizAnalyser.frequencyBinCount);
+  vizAnalyser.getByteFrequencyData(data);
+  const bars = voiceViz.querySelectorAll('.vbar');
+  const step = Math.floor(data.length / VBAR_COUNT);
+  bars.forEach((bar, i) => {
+    const val = data[i * step] || 0;
+    const h = Math.max(3, (val / 255) * 80);
+    bar.style.height = h + 'px';
+  });
+  vizAnimFrame = requestAnimationFrame(animateViz);
+}
+
+function animateVizSimulated() {
+  if (!voiceViz.classList.contains('active')) { vizAnimFrame = null; return; }
+  const bars = voiceViz.querySelectorAll('.vbar');
+  const t = Date.now() / 1000;
+  bars.forEach((bar, i) => {
+    const wave = Math.sin(t * 4 + i * 0.4) * 0.5 + 0.5;
+    const h = Math.max(3, wave * 48 + Math.random() * 14);
+    bar.style.height = h + 'px';
+  });
+  vizAnimFrame = requestAnimationFrame(animateVizSimulated);
+}
+
+// ═══════════════════════════════════════════════════════════
+//  CHAIN-OF-THOUGHT UI
+// ═══════════════════════════════════════════════════════════
+let activeCotCard = null;
+
+function showChainOfThought(target) {
+  removeChainOfThought();
+  ensureChatStarted();
+  const el = document.createElement('div');
+  el.className = 'cot-card';
+  el.id = 'active-cot';
+  el.innerHTML = `
+    <div class="cot-header" onclick="this.parentElement.classList.toggle('collapsed')">
+      <span class="cot-title">🧠 AI Reasoning Chain</span>
+      <span class="cot-toggle">▼</span>
+    </div>
+    <div class="cot-steps" id="cot-steps"></div>`;
+  chatContainer.appendChild(el);
+  activeCotCard = el;
+  scrollChat();
+  return el;
+}
+
+function addCotStep(icon, text, status) {
+  const steps = $('cot-steps');
+  if (!steps) return;
+
+  steps.querySelectorAll('.cot-step.active').forEach(s => {
+    s.classList.remove('active');
+    s.classList.add('done');
+    const spinner = s.querySelector('.cot-spinner');
+    if (spinner) spinner.remove();
+    const iconEl = s.querySelector('.cot-icon');
+    if (iconEl && !iconEl.dataset.locked) iconEl.textContent = '✓';
+  });
+
+  const step = document.createElement('div');
+  step.className = `cot-step ${status || 'active'}`;
+  const spinnerHtml = status === 'active' ? '<span class="cot-spinner"></span>' : '';
+  step.innerHTML = `<span class="cot-icon" ${icon === '🔍' || icon === '🎯' ? 'data-locked="1"' : ''}>${icon}</span><span class="cot-text">${spinnerHtml}${text}</span>`;
+  steps.appendChild(step);
+  scrollChat();
+}
+
+function finishChainOfThought() {
+  const steps = $('cot-steps');
+  if (!steps) return;
+  steps.querySelectorAll('.cot-step.active').forEach(s => {
+    s.classList.remove('active');
+    s.classList.add('done');
+    const spinner = s.querySelector('.cot-spinner');
+    if (spinner) spinner.remove();
+    const iconEl = s.querySelector('.cot-icon');
+    if (iconEl && !iconEl.dataset.locked) iconEl.textContent = '✓';
+  });
+}
+
+function removeChainOfThought() {
+  const el = $('active-cot');
+  if (el) el.remove();
+  activeCotCard = null;
+}
+
+// ═══════════════════════════════════════════════════════════
+//  TYPEWRITER EFFECT
+// ═══════════════════════════════════════════════════════════
+function addMsgTypewriter(role, rawText, speed) {
+  ensureChatStarted();
+  const time = new Date().toLocaleTimeString('th-TH', {hour:'2-digit', minute:'2-digit'});
+  const el = document.createElement('div');
+  el.className = `msg-group ${role}`;
+  const avatar = role === 'vora' ? '🤖' : '👤';
+  el.innerHTML = `
+    <div class="msg-avatar">${avatar}</div>
+    <div class="msg-content">
+      <div class="msg-bubble typewriter"><span class="tw-text"></span><span class="tw-cursor"></span></div>
+      <div class="msg-meta"><span class="msg-time">${time}</span></div>
+    </div>`;
+  chatContainer.appendChild(el);
+  scrollChat();
+
+  const textEl = el.querySelector('.tw-text');
+  const cursorEl = el.querySelector('.tw-cursor');
+  const html = (role === 'vora') ? renderMarkdown(rawText) : rawText;
+  const chars = html.split('');
+  let i = 0;
+  const baseSpeed = speed || 22;
+  let inTag = false;
+  let tagBuffer = '';
+
+  function typeNext() {
+    if (i >= chars.length) { if (cursorEl) cursorEl.remove(); return; }
+    const ch = chars[i];
+    if (ch === '<') { inTag = true; tagBuffer = '<'; i++; typeNext(); return; }
+    if (inTag) {
+      tagBuffer += ch;
+      if (ch === '>') { inTag = false; textEl.innerHTML += tagBuffer; tagBuffer = ''; }
+      i++; typeNext(); return;
+    }
+    textEl.innerHTML += ch;
+    i++;
+    scrollChat();
+    setTimeout(typeNext, baseSpeed + Math.random() * 12);
+  }
+  typeNext();
+  return el;
+}
+
+// ═══════════════════════════════════════════════════════════
+//  HERO-TO-CHAT TRANSITION
+// ═══════════════════════════════════════════════════════════
+const _origEnsureChatStarted = ensureChatStarted;
+ensureChatStarted = function() {
+  if (!chatStarted) {
+    chatStarted = true;
+    const ws = welcomeScreen;
+    ws.classList.add('shrinking');
+    ws.addEventListener('animationend', () => { ws.style.display = 'none'; }, {once: true});
+  }
+};
+
+// ═══════════════════════════════════════════════════════════
+//  FLOATING D-PAD TOGGLE
+// ═══════════════════════════════════════════════════════════
+(function initFloatingDpad() {
+  const overlay = $('dpad-overlay');
+  const btn = $('btn-dpad');
+  let isShowing = false;
+
+  btn.onclick = () => {
+    if (isShowing) {
+      overlay.classList.add('hiding');
+      overlay.addEventListener('animationend', () => {
+        overlay.classList.remove('show', 'hiding');
+      }, {once: true});
+      isShowing = false;
+    } else {
+      overlay.classList.remove('hiding');
+      overlay.classList.add('show');
+      isShowing = true;
+    }
+  };
+})();
+
+// ═══════════════════════════════════════════════════════════
+//  DRAGGABLE CAMERA (legacy mini — hidden in dashboard mode)
+// ═══════════════════════════════════════════════════════════
+(function initDraggableCamera() {
+  const cam = document.getElementById('camera-mini');
+  if (!cam) return;
+
+  let isDragging = false, wasDragged = false;
+  let startX, startY, camStartX, camStartY;
+
+  function getPosition() {
+    const rect = cam.getBoundingClientRect();
+    return { x: rect.left, y: rect.top };
+  }
+
+  function clamp(x, y) {
+    const pRect = cam.parentElement.getBoundingClientRect();
+    const cw = cam.offsetWidth, ch = cam.offsetHeight;
+    x = Math.max(pRect.left, Math.min(x, pRect.right - cw));
+    y = Math.max(pRect.top, Math.min(y, pRect.bottom - ch));
+    return { x, y };
+  }
+
+  function onStart(clientX, clientY) {
+    const pos = getPosition();
+    isDragging = true;
+    wasDragged = false;
+    startX = clientX;
+    startY = clientY;
+    camStartX = pos.x;
+    camStartY = pos.y;
+    cam.classList.add('dragging');
+  }
+
+  function onMove(clientX, clientY) {
+    if (!isDragging) return;
+    const dx = clientX - startX;
+    const dy = clientY - startY;
+    if (Math.abs(dx) > 5 || Math.abs(dy) > 5) wasDragged = true;
+    const { x, y } = clamp(camStartX + dx, camStartY + dy);
+    cam.style.position = 'fixed';
+    cam.style.left = x + 'px';
+    cam.style.top = y + 'px';
+    cam.style.right = 'auto';
+    cam.style.bottom = 'auto';
+  }
+
+  function onEnd() {
+    isDragging = false;
+    cam.classList.remove('dragging');
+  }
+
+  cam.addEventListener('mousedown', e => { e.preventDefault(); onStart(e.clientX, e.clientY); });
+  document.addEventListener('mousemove', e => onMove(e.clientX, e.clientY));
+  document.addEventListener('mouseup', () => onEnd());
+  cam.addEventListener('touchstart', e => { e.preventDefault(); onStart(e.touches[0].clientX, e.touches[0].clientY); }, {passive:false});
+  document.addEventListener('touchmove', e => { if (isDragging) { e.preventDefault(); onMove(e.touches[0].clientX, e.touches[0].clientY); } }, {passive:false});
+  document.addEventListener('touchend', () => onEnd());
+
+  cam.addEventListener('click', e => {
+    if (wasDragged) {
+      e.preventDefault();
+      wasDragged = false;
+    } else {
+      openCameraFull();
+    }
+  });
+
+  cam.onclick = null;
+})();
+
+// ═══════════════════════════════════════════════════════════
+//  SERVER-ONLY STT FALLBACK (when Gateway unavailable)
+// ═══════════════════════════════════════════════════════════
+async function startRecordingServerDirect() {
+  try {
+    mediaStream = await _getMicStream();
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    sampleRate = audioCtx.sampleRate;
+
+    const wsUrl = `${SERVER_WS}/ws/stt`;
+    console.log('🎤 Server-direct STT:', wsUrl);
+    audioWs = new WebSocket(wsUrl);
+
+    audioWs.onopen = () => {
+      audioWs.send(JSON.stringify({rate: sampleRate, lang: 'th'}));
+
+      const source = audioCtx.createMediaStreamSource(mediaStream);
+      processor = audioCtx.createScriptProcessor(4096, 1, 1);
+      processor.onaudioprocess = e => {
+        if (audioWs && audioWs.readyState === WebSocket.OPEN) {
+          const pcm = e.inputBuffer.getChannelData(0);
+          const int16 = new Int16Array(pcm.length);
+          for (let i = 0; i < pcm.length; i++) int16[i] = Math.max(-32768, Math.min(32767, pcm[i] * 32767));
+          audioWs.send(int16.buffer);
+        }
+      };
+      source.connect(processor);
+      processor.connect(audioCtx.destination);
+
+      const analyser = audioCtx.createAnalyser();
+      analyser.fftSize = 128;
+      source.connect(analyser);
+      startVoiceVisualizer(analyser);
+
+      isRecording = true;
+      btnMic.classList.add('recording');
+      transcriptBar.textContent = '🎤 Listening (Server-direct)...';
+      transcriptBar.classList.add('active');
+    };
+
+    audioWs.onmessage = e => {
+      try {
+        const data = JSON.parse(e.data);
+        const type = (data.type || '').toLowerCase();
+        if (type === 'partial') {
+          transcriptBar.innerHTML = `<span style="color:var(--accent2)">🎤 ${data.text || '...'}</span>`;
+        } else if (['final','result','transcript_final'].includes(type)) {
+          const text = data.text || '';
+          if (text) {
+            transcriptBar.textContent = `✅ "${text}"`;
+            addMsg('user', text);
+            if (AUTO_SEND) sendCmd(text);
+            setTimeout(() => { transcriptBar.textContent = isRecording ? '🎤 Listening (Server-direct)...' : ''; }, 1500);
+          }
+        }
+      } catch(err) {}
+    };
+
+    audioWs.onclose = () => { if (isRecording) stopRecording(); };
+    audioWs.onerror = e => {
+      console.error('Server STT WS error:', e);
+      addMsg('system', '⚠️ ไม่สามารถเชื่อมต่อ STT กับ Server');
+      stopRecording();
+    };
+  } catch(e) {
+    _showMicError(e);
+  }
+}
+
+// Override startRecording to choose Gateway vs Server-direct
+const _origStartRecording = startRecording;
+startRecording = async function() {
+  if (gwAvailable) {
+    return _origStartRecording();
+  } else {
+    console.log('⚠️ Gateway unavailable — using Server-direct STT');
+    return startRecordingServerDirect();
+  }
+};
+
+// ═══════════════════════════════════════════════════════════
+//  KEYBOARD SHORTCUTS
+// ═══════════════════════════════════════════════════════════
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Escape') return;
+  if ($('settings-overlay').classList.contains('show')) { closeSettings(); return; }
+  if ($('camera-full').classList.contains('show')) { closeCameraFull(); return; }
+  if ($('memory-panel').classList.contains('show')) { closeMemory(); return; }
+  if ($('map-expanded').classList.contains('show')) { toggleExpandedMap(); return; }
+});
+
+// ═══════════════════════════════════════════════════════════
+//  PERIODIC HEALTH
+// ═══════════════════════════════════════════════════════════
+setInterval(() => { checkServer(); checkGateway(); }, 15000);
+
+// ═══════════════════════════════════════════════════════════
+//  START
+// ═══════════════════════════════════════════════════════════
+init();
+</script>
+</body>
+</html>

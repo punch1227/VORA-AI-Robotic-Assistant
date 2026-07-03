@@ -135,27 +135,6 @@ Navigation is handled using ROS2, Nav2, and map-based localization.
 
 ---
 
-## Project Structure
-
-```text
-VORA-AI-Robotic-Assistant/
-│
-├── app/                 # AI server, backend services, API routes, and web interface
-├── Gateway/             # Gateway bridge between AI services and robot-side communication
-├── Myagv/               # Robot-side ROS2 navigation, mapping, and control scripts
-├── tests/               # Testing scripts
-│
-├── images/              # Architecture diagrams, robot images, web app screenshots
-├── demo/                # Demo video link
-├── docs/                # Additional project documentation
-│
-├── environment.yml      # Conda environment configuration
-├── .gitignore
-└── README.md
-```
-
----
-
 ## My Contributions
 
 As part of a two-person thesis team, my main contributions included:
@@ -181,18 +160,6 @@ The system was evaluated across multiple components:
 
 The evaluation focused on system correctness, AI response reliability, and real-world usability in a controlled indoor environment.
 
----
-
-## Future Improvements
-
-Potential future improvements include:
-
-* Improving navigation robustness in dynamic environments
-* Adding more supported objects and room types
-* Integrating retrieval-augmented generation for document-based knowledge
-* Adding model monitoring and logging for production deployment
-* Improving latency and real-time response performance
-* Supporting more natural multi-turn conversations
 
 ---
 
